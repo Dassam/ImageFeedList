@@ -14,6 +14,8 @@
 		CE6032FB2A27F85E009E9C61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE6032FA2A27F85E009E9C61 /* Assets.xcassets */; };
 		CE6032FE2A27F85E009E9C61 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE6032FC2A27F85E009E9C61 /* LaunchScreen.storyboard */; };
 		CE6033082A28D39F009E9C61 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6033072A28D39F009E9C61 /* UIColor+Extensions.swift */; };
+		CE60330E2A292074009E9C61 /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE60330C2A292074009E9C61 /* YS Display-Bold.ttf */; };
+		CE60330F2A292074009E9C61 /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE60330D2A292074009E9C61 /* YS Display-Medium.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		CE6032FD2A27F85E009E9C61 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CE6032FF2A27F85E009E9C61 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CE6033072A28D39F009E9C61 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
+		CE60330C2A292074009E9C61 /* YS Display-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Bold.ttf"; sourceTree = "<group>"; };
+		CE60330D2A292074009E9C61 /* YS Display-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Medium.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,12 +63,12 @@
 			isa = PBXGroup;
 			children = (
 				CE6033062A28D38D009E9C61 /* Helpers */,
+				CE6033092A28DFD0009E9C61 /* Presentation */,
 				CE6033052A28D310009E9C61 /* Resources */,
+				CE60330B2A28E00D009E9C61 /* Services */,
+				CE6032FF2A27F85E009E9C61 /* Info.plist */,
 				CE6032F12A27F85C009E9C61 /* AppDelegate.swift */,
 				CE6032F32A27F85C009E9C61 /* SceneDelegate.swift */,
-				CE6032F52A27F85C009E9C61 /* ViewController.swift */,
-				CE6032F72A27F85C009E9C61 /* Main.storyboard */,
-				CE6032FF2A27F85E009E9C61 /* Info.plist */,
 			);
 			path = ImageFeedList;
 			sourceTree = "<group>";
@@ -74,6 +78,7 @@
 			children = (
 				CE6032FA2A27F85E009E9C61 /* Assets.xcassets */,
 				CE6032FC2A27F85E009E9C61 /* LaunchScreen.storyboard */,
+				CE60330A2A28DFF7009E9C61 /* ImageFeedFonts */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -84,6 +89,31 @@
 				CE6033072A28D39F009E9C61 /* UIColor+Extensions.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		CE6033092A28DFD0009E9C61 /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				CE6032F52A27F85C009E9C61 /* ViewController.swift */,
+				CE6032F72A27F85C009E9C61 /* Main.storyboard */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		CE60330A2A28DFF7009E9C61 /* ImageFeedFonts */ = {
+			isa = PBXGroup;
+			children = (
+				CE60330C2A292074009E9C61 /* YS Display-Bold.ttf */,
+				CE60330D2A292074009E9C61 /* YS Display-Medium.ttf */,
+			);
+			path = ImageFeedFonts;
+			sourceTree = "<group>";
+		};
+		CE60330B2A28E00D009E9C61 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -147,6 +177,8 @@
 				CE6032FE2A27F85E009E9C61 /* LaunchScreen.storyboard in Resources */,
 				CE6032FB2A27F85E009E9C61 /* Assets.xcassets in Resources */,
 				CE6032F92A27F85C009E9C61 /* Main.storyboard in Resources */,
+				CE60330E2A292074009E9C61 /* YS Display-Bold.ttf in Resources */,
+				CE60330F2A292074009E9C61 /* YS Display-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
