@@ -18,10 +18,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="oke-Gu-OBn">
-                                <rect key="frame" x="0.0" y="48" width="414" height="848"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                 <color key="backgroundColor" name="YP Black"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImagesListCell" rowHeight="224" id="fAB-1A-j5Y" customClass="ImagesListCell" customModule="ImageFeedList" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImagesListCell" rowHeight="224" id="fAB-1A-j5Y" customClass="ImagesListCell" customModule="ImageFeedList" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="50" width="414" height="224"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="fAB-1A-j5Y" id="CMn-Pb-Paw">
@@ -98,7 +98,7 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="oke-Gu-OBn" secondAttribute="trailing" id="HkW-8x-Xn3"/>
                             <constraint firstAttribute="bottom" secondItem="oke-Gu-OBn" secondAttribute="bottom" id="HwK-Bh-uZW"/>
                             <constraint firstItem="oke-Gu-OBn" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="cGg-qe-GGF"/>
-                            <constraint firstItem="oke-Gu-OBn" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="ibl-ju-cVG"/>
+                            <constraint firstItem="oke-Gu-OBn" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="ibl-ju-cVG"/>
                         </constraints>
                     </view>
                     <toolbarItems/>

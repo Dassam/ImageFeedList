@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ImagesListViewController: UIViewController {
+final class ImagesListViewController: UIViewController {
     @IBOutlet private var tableView: UITableView!
     
     private let photosName: [String] = Array(0..<20).map{ "\($0)" }
@@ -42,16 +42,17 @@ class ImagesListViewController: UIViewController {
         cell.dateBackground.layer.addSublayer(cell.gradient)
         
         if indexPath.row % 2 != 0 {
-            cell.likeButton.setImage(UIImage(named: "favoritesActive"), for: .normal)
-        } else {
             cell.likeButton.setImage(UIImage(named: "favoritesNoActive"), for: .normal)
+        } else {
+            cell.likeButton.setImage(UIImage(named: "favoritesActive"), for: .normal)
         }
     }
     
 }
-// MARK: Working with tableView
 
-extension ImagesListViewController: UITableViewDataSource, UITableViewDelegate {
+//MARK: - UITableViewDataSource
+
+extension ImagesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photosName.count
@@ -80,5 +81,12 @@ extension ImagesListViewController: UITableViewDataSource, UITableViewDelegate {
       let imageViewHeight = imageHeight + imageInsets.top + imageInsets.bottom
       return imageViewHeight
     }
+}
+
+//MARK: - UITableViewDataSource
+
+extension ImagesListViewController: UITableViewDelegate {
+    
+    
     
 }
