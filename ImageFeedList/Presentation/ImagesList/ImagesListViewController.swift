@@ -42,9 +42,9 @@ final class ImagesListViewController: UIViewController {
         cell.dateBackground.layer.addSublayer(cell.gradient)
         
         if indexPath.row % 2 != 0 {
-            cell.likeButton.setImage(UIImage(named: "favoritesNoActive"), for: .normal)
+            cell.likeButton.setImage(UIImage(named: "like_button_off"), for: .normal)
         } else {
-            cell.likeButton.setImage(UIImage(named: "favoritesActive"), for: .normal)
+            cell.likeButton.setImage(UIImage(named: "like_button_on"), for: .normal)
         }
     }
     
