@@ -109,7 +109,6 @@
                                             <outlet property="dateBackground" destination="aZa-pz-lIU" id="u4V-dx-wc4"/>
                                             <outlet property="dateLabel" destination="GOh-Qm-cXT" id="pJ2-wC-QZW"/>
                                             <outlet property="likeButton" destination="TV1-mR-hVA" id="UVc-SY-74u"/>
-                                            <segue destination="FBC-4n-mzl" kind="show" id="RH3-Lh-BIz"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -129,6 +128,7 @@
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="tableView" destination="oke-Gu-OBn" id="O5v-gm-m2Q"/>
+                        <segue destination="FBC-4n-mzl" kind="show" identifier="ShowSingleImage" id="pEO-cA-Uus"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
