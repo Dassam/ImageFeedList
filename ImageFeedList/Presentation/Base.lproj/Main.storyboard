@@ -156,9 +156,13 @@
                                     <constraint firstAttribute="bottom" secondItem="0i4-zz-B8j" secondAttribute="bottom" id="IdA-Lf-ke1"/>
                                     <constraint firstItem="0i4-zz-B8j" firstAttribute="top" secondItem="Gdm-Ht-5pL" secondAttribute="top" id="jMs-31-gJh"/>
                                     <constraint firstAttribute="trailing" secondItem="0i4-zz-B8j" secondAttribute="trailing" id="x3e-vT-dhB"/>
+                                    <constraint firstItem="0i4-zz-B8j" firstAttribute="centerX" secondItem="Gdm-Ht-5pL" secondAttribute="centerX" id="yRs-Up-Iuz"/>
                                 </constraints>
                                 <viewLayoutGuide key="contentLayoutGuide" id="spY-pD-yoG"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="lF6-bU-yme"/>
+                                <connections>
+                                    <outlet property="delegate" destination="FBC-4n-mzl" id="q3h-6c-vbH"/>
+                                </connections>
                             </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zdp-4S-wLe">
                                 <rect key="frame" x="8" y="8" width="48" height="48"/>
@@ -176,6 +180,9 @@
                                 <rect key="frame" x="182" y="810" width="50" height="50"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" image="sharing"/>
+                                <connections>
+                                    <action selector="didTapShareButton:" destination="FBC-4n-mzl" eventType="touchUpInside" id="DPa-u4-6DX"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="iOP-s7-GsZ"/>
