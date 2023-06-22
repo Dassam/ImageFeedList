@@ -10,6 +10,7 @@ import UIKit
 final class ImagesListViewController: UIViewController {
     @IBOutlet private var tableView: UITableView!
     
+    private let ShowSingleImageSegueIdentifier = "ShowSingleImage"
     private let photosName: [String] = Array(0..<20).map{ "\($0)" }
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -42,9 +43,20 @@ final class ImagesListViewController: UIViewController {
         cell.dateBackground.layer.addSublayer(cell.gradient)
         
         if indexPath.row % 2 != 0 {
-            cell.likeButton.setImage(UIImage(named: "favoritesNoActive"), for: .normal)
+            cell.likeButton.setImage(UIImage(named: "like_button_off"), for: .normal)
         } else {
-            cell.likeButton.setImage(UIImage(named: "favoritesActive"), for: .normal)
+            cell.likeButton.setImage(UIImage(named: "like_button_on"), for: .normal)
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == ShowSingleImageSegueIdentifier {
+            let viewController = segue.destination as! SingleImageViewController
+            let indexPath = sender as! IndexPath
+            let image = UIImage(named: photosName[indexPath.row])
+            viewController.image = image
+        } else {
+            super.prepare(for: segue, sender: sender)
         }
     }
     
@@ -61,9 +73,7 @@ extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ImagesListCell.reuseIdentifier, for: indexPath)
 
-        guard let imageListCell = cell as? ImagesListCell else {
-            return UITableViewCell()
-        }
+        guard let imageListCell = cell as? ImagesListCell else { return UITableViewCell() }
         configCell(for: imageListCell, with: indexPath)
         return imageListCell
     }
@@ -86,7 +96,7 @@ extension ImagesListViewController: UITableViewDataSource {
 //MARK: - UITableViewDataSource
 
 extension ImagesListViewController: UITableViewDelegate {
-    
-    
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: ShowSingleImageSegueIdentifier, sender: indexPath)
+    }
 }
