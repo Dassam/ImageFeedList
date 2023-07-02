@@ -10,57 +10,46 @@ import UIKit
 final class ProfileViewController: UIViewController {
 
     override func viewDidLoad() {
-        super.viewDidLoad()
-
         setupView()
         layoutComponents()
         loadData()
+        super.viewDidLoad()
     }
 
     // MARK: View components
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
-
         imageView.layer.cornerRadius = 35
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
-
         return imageView
     }()
 
     private let nameLabel: UILabel = {
         let label = UILabel()
-        
         label.font = UIFont(name: "Inter-Regular", size: 23)
         label.textColor = UIColor.ypWhite
-
         return label
     }()
 
     private let loginNameLabel: UILabel = {
         let label = UILabel()
-        
         label.font = UIFont(name: "Inter-Regular", size: 13)
         label.textColor = UIColor.ypGray
-
         return label
     }()
 
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-
         label.font = UIFont(name: "Inter-Regular", size: 13)
         label.textColor = UIColor.ypWhite
-    
         return label
     }()
 
     private let logoutButton: UIButton = {
         let button = UIButton()
-
         button.setImage(UIImage(named: "logout_button"), for: .normal)
         button.tintColor = UIColor.ypRed
-
         return button
     }()
 }
@@ -72,19 +61,16 @@ extension ProfileViewController {
         // MARK: - Profile Vertical Stack
         
         let vertStack = UIStackView()
-        
         vertStack.translatesAutoresizingMaskIntoConstraints = false
         vertStack.axis = .vertical
         vertStack.spacing = 8
         vertStack.alignment = .leading
-        
         view.addSubview(vertStack)
         
         // MARK: - Profile Horizontal Stack
         
         let horizStack = UIStackView()
         let horizStackMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 8)
-        
         horizStack.translatesAutoresizingMaskIntoConstraints = false
         horizStack.layoutMargins = horizStackMargins
         horizStack.axis = .horizontal
