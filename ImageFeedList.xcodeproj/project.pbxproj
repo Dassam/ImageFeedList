@@ -19,6 +19,7 @@
 		CE6033152A2B596A009E9C61 /* ImagesListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6033142A2B596A009E9C61 /* ImagesListCell.swift */; };
 		CEFBE5902A37679D00C7F07F /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEFBE58F2A37679D00C7F07F /* ProfileViewController.swift */; };
 		CEFBE5932A37BC2200C7F07F /* SingleImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEFBE5922A37BC2200C7F07F /* SingleImageViewController.swift */; };
+		CEFE49602A4EB4AC004D3F0F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEFE495F2A4EB4AC004D3F0F /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		CE6033142A2B596A009E9C61 /* ImagesListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListCell.swift; sourceTree = "<group>"; };
 		CEFBE58F2A37679D00C7F07F /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		CEFBE5922A37BC2200C7F07F /* SingleImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleImageViewController.swift; sourceTree = "<group>"; };
+		CEFE495F2A4EB4AC004D3F0F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				CE6033072A28D39F009E9C61 /* UIColor+Extensions.swift */,
+				CEFE495F2A4EB4AC004D3F0F /* Constants.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -229,6 +232,7 @@
 				CE6032F42A27F85C009E9C61 /* SceneDelegate.swift in Sources */,
 				CE6033082A28D39F009E9C61 /* UIColor+Extensions.swift in Sources */,
 				CE6033152A2B596A009E9C61 /* ImagesListCell.swift in Sources */,
+				CEFE49602A4EB4AC004D3F0F /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
