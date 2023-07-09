@@ -45,13 +45,12 @@ final class OAuth2Service {
                 return
             }
             
-            if let response = response as? HTTPURLResponse {
-                if response.statusCode < 200 || response.statusCode >= 300 {
+            if let response = response as? HTTPURLResponse,
+               response.statusCode < 200 || response.statusCode >= 300 {
                     DispatchQueue.main.async {
                         completion(.failure(NetworkError.httpStatusCode(response.statusCode)))
                     }
                     return
-                }
             }
             
             if let data = data {
