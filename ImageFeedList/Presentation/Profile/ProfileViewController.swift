@@ -9,14 +9,8 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
 
-    override func viewDidLoad() {
-        setupView()
-        layoutComponents()
-        loadData()
-        super.viewDidLoad()
-    }
-
-    // MARK: View components
+// MARK: View components
+    
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 35
@@ -52,9 +46,17 @@ final class ProfileViewController: UIViewController {
         button.tintColor = UIColor.ypRed
         return button
     }()
+    
+    override func viewDidLoad() {
+        setupView()
+        layoutComponents()
+        loadData()
+        super.viewDidLoad()
+    }
 }
 
 // MARK: - Layout
+
 extension ProfileViewController {
     private func layoutComponents() {
         
