@@ -6,53 +6,116 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
-
-// MARK: View components
+    
+    private let profileService = ProfileService.shared
+    
+    // MARK: View components
     
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 35
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
-
+    
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Inter-Regular", size: 23)
+        label.font = UIFont.systemFont(ofSize: 23, weight: .bold)
         label.textColor = UIColor.ypWhite
+        label.text = "Екатерина Новикова"
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private let loginNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Inter-Regular", size: 13)
+        label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textColor = UIColor.ypGray
+        label.text = "@ekaterina_nov"
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "Inter-Regular", size: 13)
+        label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textColor = UIColor.ypWhite
+        label.text = "Hello, World!"
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private let logoutButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(named: "logout_button"), for: .normal)
-        button.tintColor = UIColor.ypRed
+        let button = UIButton.systemButton(
+            with: UIImage(named: "logout_button")!,
+            target: self,
+            action: #selector(logOutButtonPressed)
+        )
+        button.tintColor = .ypRed
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
+    deinit {
+        removeObserver()
+    }
+    
     override func viewDidLoad() {
+        
+        view.backgroundColor = .ypBlack
         setupView()
         layoutComponents()
         loadData()
+        addObserver()
+        updateProfileDetails()
         super.viewDidLoad()
     }
+    
+    private func updateProfileDetails() {
+        
+        guard let profile = profileService.profile else { return }
+        nameLabel.text = "\(profile.firstName) \(profile.lastName ?? "")"
+        loginNameLabel.text = "@\(profile.username)"
+        descriptionLabel.text = profile.bio
+        
+        if let imageURL = ProfileImageService.shared.avatarURL,
+           let url = URL(string: imageURL) {
+            setAvatar(url)
+        }
+    }
+    
+    private func setAvatar(_ url: URL) {
+        let cache = ImageCache.default
+        cache.clearDiskCache()
+        let processor = RoundCornerImageProcessor(cornerRadius: 25)
+        
+        avatarImageView.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "placeholder"),
+            options: [.processor(processor), .transition(.fade(1))]
+        )
+    }
+    
+    @objc
+    private func updateAvatar(notification: Notification) {
+        guard
+            isViewLoaded,
+            let userInfo = notification.userInfo,
+            let profileImageURL = userInfo["URL"] as? String,
+            let url = URL(string: profileImageURL)
+        else { return }
+        
+        setAvatar(url)
+    }
+    
+    @objc
+    private func logOutButtonPressed() {}
+    
 }
 
 // MARK: - Layout
@@ -110,12 +173,34 @@ extension ProfileViewController {
     }
 }
 
-// MARK: - Data
+// MARK: - Data Loading
 extension ProfileViewController {
     private func loadData() {
         avatarImageView.image = UIImage(named: "avatar")
         nameLabel.text = "Екатерина Новикова"
         loginNameLabel.text = "@ekaterina_nov"
         descriptionLabel.text = "Hello, world!"
+    }
+    
+}
+
+
+// MARK: - Observer
+extension ProfileViewController {
+    private func addObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateAvatar(notification:)),
+            name: ProfileImageService.didChangeNotification,
+            object: nil
+        )
+    }
+    
+    private func removeObserver() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: ProfileImageService.didChangeNotification,
+            object: nil
+        )
     }
 }
