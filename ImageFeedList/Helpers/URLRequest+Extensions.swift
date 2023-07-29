@@ -11,7 +11,7 @@ extension URLRequest {
     static func makeHTTPRequest(
         path: String,
         httpMethod: String,
-        baseURL: URL? = URL(string:.key(.defaultBaseURL))
+        baseURL: URL? = URL(string: .key(.defaultBaseURL))
     ) -> URLRequest? {
         guard let url = URL(string: path, relativeTo: baseURL) else {
             assertionFailure("Failed to make url")

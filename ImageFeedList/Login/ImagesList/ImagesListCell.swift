@@ -60,14 +60,14 @@ final class ImagesListCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func addSubviews(){
+    private func addSubviews() {
         contentView.addSubview(mainView)
         mainView.addSubview(cellImageView)
         mainView.addSubview(likeButton)
         mainView.addSubview(dateLabel)
     }
     
-    private func applyConstraints(){
+    private func applyConstraints() {
         NSLayoutConstraint.activate([
             mainView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             mainView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -90,6 +90,7 @@ final class ImagesListCell: UITableViewCell {
             dateLabel.heightAnchor.constraint(equalToConstant: 18)
         ])
     }
+    
     func configure(with model: ImagesListCellModel) {
         cellImageView.image = model.image
         dateLabel.text = model.date

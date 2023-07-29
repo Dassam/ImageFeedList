@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum Constants : String{
+enum Constants: String {
     case accessKey = "BcUTlbzxNTJAURJiVMu6S-vjvn-i3eRVF85CIstrEYU"
     case accessScope = "public+read_user+write_likes"
     case accessTokenURL = "https://unsplash.com/oauth/token"
