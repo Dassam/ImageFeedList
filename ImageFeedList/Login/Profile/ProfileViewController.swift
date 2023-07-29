@@ -181,9 +181,7 @@ extension ProfileViewController {
         loginNameLabel.text = "@ekaterina_nov"
         descriptionLabel.text = "Hello, world!"
     }
-    
 }
-
 
 // MARK: - Observer
 extension ProfileViewController {

@@ -13,7 +13,7 @@ final class OAuth2TokenStorage {
     
     static let shared = OAuth2TokenStorage(keychainWrapper: KeychainWrapper.standard)
     
-    init(keychainWrapper: KeychainWrapper) {
+    private init(keychainWrapper: KeychainWrapper) {
         self.keychainWrapper = keychainWrapper
     }
     

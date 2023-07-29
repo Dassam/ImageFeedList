@@ -29,7 +29,7 @@ final class SingleImageViewController: UIViewController {
     private let backButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "button_backward"), for: .normal)
+        button.setImage(UIImage(named: "nav_back_button_white"), for: .normal)
         button.setTitle("", for: .normal)
         button.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
         return button
@@ -39,7 +39,7 @@ final class SingleImageViewController: UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("", for: .normal)
-        button.setImage(UIImage(named: "button_sharing"), for: .normal)
+        button.setImage(UIImage(named: "sharing"), for: .normal)
         button.addTarget(self, action: #selector(didTapShareButton), for: .touchUpInside)
         return button
     }()
@@ -62,16 +62,19 @@ final class SingleImageViewController: UIViewController {
         view.backgroundColor = .ypBlack
         scrollView.delegate = self
         imageView.image = image
+        addSubviews()
         setupConstraints()
         rescaleAndCenterImageInScrollView(image: image)
     }
     
-    private func setupConstraints() {
+    private func addSubviews() {
         view.addSubview(scrollView)
         scrollView.addSubview(imageView)
         view.addSubview(backButton)
         view.addSubview(shareButton)
-        
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
@@ -88,7 +91,6 @@ final class SingleImageViewController: UIViewController {
             shareButton.widthAnchor.constraint(equalToConstant: 50),
             shareButton.heightAnchor.constraint(equalToConstant: 50)
         ])
-        
     }
     
     private func rescaleAndCenterImageInScrollView(image: UIImage) {

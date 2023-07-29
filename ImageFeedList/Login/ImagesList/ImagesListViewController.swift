@@ -69,7 +69,7 @@ extension ImagesListViewController: UITableViewDataSource {
         }
         let model = ImagesListCell.ImagesListCellModel(
             image: UIImage(named: "\(indexPath.row)"),
-            likeButton: (indexPath.row % 2 != 0) ? UIImage(named: "like_active") : UIImage(named: "like_disable"),
+            likeButton: (indexPath.row % 2 != 0) ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off"),
             date: dateFormatter.string(from: Date())
         )
         imageListCell.configure(with: model)
