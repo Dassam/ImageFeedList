@@ -9,9 +9,37 @@ import UIKit
 import WebKit
 
 final class WebViewViewController: UIViewController {
-    @IBOutlet private var webView: WKWebView!
-    @IBOutlet private var progressView: UIProgressView!
     
+    // MARK: View components
+        
+    private let webView: WKWebView = {
+        let webView = WKWebView()
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        webView.backgroundColor = .ypWhite
+        webView.isOpaque = false
+        return webView
+    }()
+    
+    private let backButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("", for: .normal)
+        button.setImage(UIImage(named: "nav_back_button"), for: .normal)
+        button.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        return button
+    }()
+    
+    private let progressView: UIProgressView = {
+        let progressView = UIProgressView()
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        progressView.progressTintColor = .ypBlack
+        progressView.progress = 0.0
+        progressView.isHidden = true
+        return progressView
+    }()
+
+    // MARK: Init
+      
     struct WebConstants {
         static let authorizedPath = "/oauth/authorize/native"
         static let authorizeURL = "https://unsplash.com/oauth/authorize"
@@ -19,35 +47,20 @@ final class WebViewViewController: UIViewController {
     }
     
     weak var delegate: WebViewViewControllerDelegate?
+    private var estimatedProgressObservation: NSKeyValueObservation?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         webView.navigationDelegate = self
+        view.backgroundColor = .ypWhite
         loadWebView()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        webView.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress))
-    }
-    
-    override func observeValue(forKeyPath keyPath: String?,
-                               of object: Any?,
-                               change: [NSKeyValueChangeKey : Any]?,
-                               context: UnsafeMutableRawPointer? ) {
-        if keyPath == #keyPath(WKWebView.estimatedProgress) {
-            updateProgress()
-        } else {
-            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+        configureComponents()
+        estimatedProgressObservation = webView.observe(\.estimatedProgress) { [weak self] _, _ in
+            guard let self = self else { return }
+            self.updateProgress()
         }
+        
     }
     
     private func updateProgress() {
@@ -55,7 +68,12 @@ final class WebViewViewController: UIViewController {
         progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
     }
     
-    @IBAction private func didTapBackButton(_ sender: Any?) {
+    deinit {
+        clean()
+    }
+    
+    @objc
+    private func didTapBackButton() {
         delegate?.webViewViewControllerDidCancel(self)
     }
 }
@@ -64,15 +82,22 @@ final class WebViewViewController: UIViewController {
 
 private extension WebViewViewController {
     func loadWebView() {
+        
+        guard var urlComponents = URLComponents(string: WebConstants.authorizeURL) else {
+            fatalError("Failed to make urlComponents from \(WebConstants.authorizeURL)")
+        }
+        
         var components = URLComponents(string: WebConstants.authorizeURL)
-        components?.queryItems = [URLQueryItem(name: "client_id", value: Constants.accessKey),
-                                  URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
+        components?.queryItems = [URLQueryItem(name: "client_id", value: .key(.accessKey)),
+                                  URLQueryItem(name: "redirect_uri", value: .key(.redirectURI)),
                                   URLQueryItem(name: "response_type", value: "code"),
-                                  URLQueryItem(name: "scope", value: Constants.accessScope)]
+                                  URLQueryItem(name: "scope", value: .key(.accessScope))]
         if let url = components?.url {
-            print(url)
             let request = URLRequest(url: url)
             webView.load(request)
+        } else {
+            assertionFailure("Failed to make URL from \(String(describing: components?.url))")
+            return
         }
     }
 }
@@ -95,15 +120,49 @@ extension WebViewViewController: WKNavigationDelegate {
     
     private func code(from navigationAction: WKNavigationAction) -> String? {
         if let url = navigationAction.request.url,
-           let components = URLComponents(string: url.absoluteString),
-           components.path == WebConstants.authorizedPath,
-           let items = components.queryItems,
-           let codeItem = items.first(where: {$0.name == WebConstants.code}) {
+           let urlComponents = URLComponents(string: url.absoluteString),
+           urlComponents.path == "/oauth/authorize/native",
+           let items = urlComponents.queryItems,
+           let codeItem = items.first(where: {$0.name == "code"}) {
             return codeItem.value
         } else {
             return nil
         }
     }
+    
+    private func clean() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            records.forEach { record in
+                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
+            }
+        }
+    }
 }
 
+// MARK: - Layout
 
+extension WebViewViewController {
+    private func configureComponents() {
+        view.addSubview(webView)
+        view.addSubview(backButton)
+        view.addSubview(progressView)
+        
+        NSLayoutConstraint.activate([
+            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
+            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
+            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 43),
+            webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
+            
+            backButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
+            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 9),
+            backButton.widthAnchor.constraint(equalToConstant: 24),
+            backButton.heightAnchor.constraint(equalToConstant: 24),
+            
+            progressView.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 0),
+            progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
+            progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0)
+        ])
+    }
+}
