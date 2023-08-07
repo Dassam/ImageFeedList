@@ -19,12 +19,13 @@ final class ProfileImageService {
         let large: String
     }
     
+    
     private var task: URLSessionTask?
     private(set) var avatarURL: String?
     private let urlSession = URLSession.shared
     private var tokenStorage = OAuth2TokenStorage.shared
         
-    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
+    static let didChangeNotification = Notification.Name("ProfileImageProviderDidChange")
     static let shared = ProfileImageService()
     private init() {}
     
