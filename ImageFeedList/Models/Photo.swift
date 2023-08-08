@@ -7,7 +7,7 @@
 
 import Foundation
     
-struct Photo {
+struct PhotoModel {
     let id: String
     let size: CGSize
     let createdAt: Date?

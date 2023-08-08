@@ -82,21 +82,18 @@ final class WebViewViewController: UIViewController {
 
 private extension WebViewViewController {
     func loadWebView() {
-        
-        guard var urlComponents = URLComponents(string: WebConstants.authorizeURL) else {
+        guard var components = URLComponents(string: WebConstants.authorizeURL) else {
             fatalError("Failed to make urlComponents from \(WebConstants.authorizeURL)")
         }
-        
-        var components = URLComponents(string: WebConstants.authorizeURL)
-        components?.queryItems = [URLQueryItem(name: "client_id", value: .key(.accessKey)),
+        components.queryItems = [URLQueryItem(name: "client_id", value: .key(.accessKey)),
                                   URLQueryItem(name: "redirect_uri", value: .key(.redirectURI)),
                                   URLQueryItem(name: "response_type", value: "code"),
                                   URLQueryItem(name: "scope", value: .key(.accessScope))]
-        if let url = components?.url {
+        if let url = components.url {
             let request = URLRequest(url: url)
             webView.load(request)
         } else {
-            assertionFailure("Failed to make URL from \(String(describing: components?.url))")
+            assertionFailure("Failed to make URL from \(String(describing: components.url))")
             return
         }
     }

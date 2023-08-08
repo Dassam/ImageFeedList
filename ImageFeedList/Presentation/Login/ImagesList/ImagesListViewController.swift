@@ -22,7 +22,7 @@ final class ImagesListViewController: UIViewController {
     private let imagesListService = ImagesListService.shared
     private var imageListServiceObserver: NSObjectProtocol?
     
-    var photos: [Photo] = []
+    var photos: [PhotoModel] = []
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -90,7 +90,8 @@ extension ImagesListViewController: UITableViewDataSource {
         guard let imageListCell = cell as? ImagesListCell else {
             preconditionFailure("Casting error")
         }
-        let model = ImagesListCell.ImagesListCellModel(
+        imageListCell.delegate = self
+        let model = ImagesListCellModel(
             imageURL: photos[indexPath.row].largeImageURL,
             imageIsLiked: photos[indexPath.row].isLiked,
             date: photos[indexPath.row].createdAt
@@ -115,10 +116,34 @@ extension ImagesListViewController: UITableViewDelegate {
         let imageViewHeight = imageHeight + imageInsets.top + imageInsets.bottom
         return imageViewHeight
     }
-  
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row == photos.count - 1 {
-            imagesListService.fetchPhotosNextPage()
+            imagesListService.fetchPhotosNextPage({ result in
+                if case .failure(let error) = result {
+                    assertionFailure(error.description(of: error))
+                }
+            })
+        }
+    }
+}
+
+// MARK: - ImagesListCellDelegate
+extension ImagesListViewController: ImagesListCellDelegate {
+    
+    func imagesListCellDidTapLike(_ cell: ImagesListCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        let photo = photos[indexPath.row]
+        imagesListService.changeLike(photoId: photo.id, isLike: photo.isLiked) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(_):
+                self.photos[indexPath.row] = imagesListService.photos[indexPath.row]
+                self.tableView.reloadRows(at: [indexPath], with: .none)
+            case .failure(let error):
+                assertionFailure(error.description(of: error))
+            }
         }
     }
 }

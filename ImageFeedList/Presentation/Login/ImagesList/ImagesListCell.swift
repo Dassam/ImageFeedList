@@ -9,13 +9,9 @@ import UIKit
 import Kingfisher
 
 final class ImagesListCell: UITableViewCell {
-    struct ImagesListCellModel {
-        let imageURL: String
-        let imageIsLiked: Bool
-        let date: Date?
-    }
     
     static let reuseIdentifier = "ImagesListCell"
+    weak var delegate: ImagesListCellDelegate?
     
     private let mainView: UIView = {
         let view = UIView()
@@ -37,6 +33,7 @@ final class ImagesListCell: UITableViewCell {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("", for: .normal)
+        button.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -49,11 +46,11 @@ final class ImagesListCell: UITableViewCell {
     }()
     
     private lazy var dateFormatter: DateFormatter = {
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "RU_ru")
-            formatter.dateFormat = "dd MMMM yyyy"
-            return formatter
-        }()
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "RU_ru")
+        formatter.dateFormat = "dd MMMM yyyy"
+        return formatter
+    }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -106,15 +103,20 @@ final class ImagesListCell: UITableViewCell {
     
     func configure(with model: ImagesListCellModel) {
         cellImageView.kf.indicatorType = .activity
-        if let url = URL(string:model.imageURL) {
+        if let url = URL(string: model.imageURL) {
             cellImageView.kf.setImage(with: url, placeholder: UIImage(named: "stub")) { [weak self] _ in
                 guard let self = self else { return }
                 cellImageView.kf.indicatorType = .none
             }
         }
+        
         dateLabel.text = dateFormatter.string(from: model.date ?? Date())
         
-        let like = model.imageIsLiked ? UIImage(named: "like_active") : UIImage(named: "like_disable")
+        let like = model.imageIsLiked ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off")
         likeButton.setImage(like, for: .normal)
+    }
+    
+    @objc private func likeButtonTapped() {
+        delegate?.imagesListCellDidTapLike(self)
     }
 }

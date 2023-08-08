@@ -8,15 +8,7 @@
 import UIKit
 
 final class ProfileService {
-    
-    struct ProfileResult: Decodable {
-        let username: String
-        let firstName: String
-        var lastName: String?
-        var bio: String?
-    }
-    
-    private init(){}
+    private init() {}
     private var task: URLSessionTask?
     private let urlSession = URLSession.shared
     private(set) var profile: ProfileResult?

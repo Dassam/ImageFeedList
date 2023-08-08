@@ -9,17 +9,6 @@ import UIKit
 
 extension URLSession {
     
-    enum NetworkError: Error {
-        case codeError
-        case httpStatusCode(Int)
-        case urlRequestError(Error)
-        case urlSessionError(Error)
-    }
-    
-    enum ParseError: Error {
-        case decodeError(Error)
-    }
-    
     func objectTask<DecodingType: Decodable>(
         for request: URLRequest,
         completion: @escaping (Result<DecodingType, Error>) -> Void
