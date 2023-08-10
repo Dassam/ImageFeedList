@@ -20,7 +20,6 @@ final class SplashViewController: UIViewController {
         return imageView
     }()
     
-    private let oauth2Service = OAuth2Service.shared
     private let profileService = ProfileService.shared
     private var tokenStorage = OAuth2TokenStorage.shared
     private let imagesListService = ImagesListService.shared
@@ -36,7 +35,7 @@ final class SplashViewController: UIViewController {
         super.viewWillAppear(animated)
         setNeedsStatusBarAppearanceUpdate()
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if let token = tokenStorage.self.token {
@@ -52,7 +51,7 @@ final class SplashViewController: UIViewController {
         authVC.modalPresentationStyle = .fullScreen
         present(authVC, animated: true)
     }
-
+    
     private func switchToTabBarController() {
         let tabBarController = TabBarController()
         tabBarController.tabBar.isTranslucent = false
@@ -67,24 +66,11 @@ final class SplashViewController: UIViewController {
 // MARK: AuthViewController Case Transition
 
 extension SplashViewController: AuthViewControllerDelegate {
-    func onAuthSuccess(_ vc: AuthViewController, didAuthenticateWithCode code: String) {
+    func onAuthSuccess(_ vc: AuthViewController, token: String) {
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
-            self.fetchOAuthToken(with: code)
-        }
-    }
-    
-    private func fetchOAuthToken(with code: String) {
-        oauth2Service.fetchAuthToken(code: code) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let token):
-                tokenStorage.token = token
-                fetchProfile(with: token)
-            case .failure(let error):
-                UIBlockingProgressHUD.dismiss()
-                showAlert(with: error)
-            }
+            tokenStorage.token = token
+            fetchProfile(with: token)
         }
     }
     
@@ -98,8 +84,14 @@ extension SplashViewController: AuthViewControllerDelegate {
                 UIBlockingProgressHUD.dismiss()
                 switchToTabBarController()
             case .failure(let error):
+                if let networkError = error as? [NetworkError] {
+                  
+                }
+                else {
+                    // obj is not a string array
+                }
                 UIBlockingProgressHUD.dismiss()
-                showAlert(with: error)
+                Alert.showAlert(with: error, view: self)
             }
         }
     }
@@ -114,25 +106,5 @@ extension SplashViewController {
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-    }
-}
-
-// MARK: - Alerts
-
-extension SplashViewController {
-    private func showAlert(with error: Error) {
-        let alertController = UIAlertController(
-            title: "Что-то пошло не так",
-            message: "Не удалось войти в систему\n" + error.localizedDescription,
-            preferredStyle: .alert
-        )
-        
-        let action = UIAlertAction(title: "Ок", style: .cancel) { [weak self] _ in
-            guard let self = self else { return }
-            switchToAuthViewController()
-        }
-        
-        alertController.addAction(action)
-        present(alertController, animated: true)
     }
 }

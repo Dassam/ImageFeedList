@@ -8,5 +8,5 @@
 import UIKit
 
 protocol AuthViewControllerDelegate: AnyObject {
-    func onAuthSuccess(_ vc: AuthViewController, didAuthenticateWithCode code: String)
+    func onAuthSuccess(_ vc: AuthViewController, token: String)
 }

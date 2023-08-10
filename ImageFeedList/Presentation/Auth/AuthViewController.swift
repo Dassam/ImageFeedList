@@ -33,6 +33,7 @@ final class AuthViewController: UIViewController {
     // MARK: Init
 
     weak var delegate: AuthViewControllerDelegate?
+    private let oauth2Service = OAuth2Service.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,14 +49,26 @@ final class AuthViewController: UIViewController {
         webViewVC.modalPresentationStyle = .fullScreen
         present(webViewVC, animated: true)
     }
-    
 }
 
 // MARK: - WebViewViewControllerDelegate
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func onAuthSuccess(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        delegate?.onAuthSuccess(self, didAuthenticateWithCode: code)
+        fetchOAuthToken(with:code)
+    }
+    
+    private func fetchOAuthToken(with code: String) {
+        oauth2Service.fetchAuthToken(code: code) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let token):
+                delegate?.onAuthSuccess(self, token: token)
+            case .failure(let error):
+                UIBlockingProgressHUD.dismiss()
+                Alert.showAlert(with: error, view: self)
+            }
+        }
     }
 
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
@@ -87,3 +100,4 @@ extension AuthViewController {
         ])
     }
 }
+
