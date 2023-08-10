@@ -39,7 +39,6 @@ final class SplashViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        UIBlockingProgressHUD.show()
         if let token = tokenStorage.self.token {
             fetchProfile(with: token)
         } else {
@@ -60,62 +59,56 @@ final class SplashViewController: UIViewController {
         tabBarController.tabBar.barTintColor = .ypBlack
         tabBarController.tabBar.tintColor = .ypWhite
         
-        let window = UIApplication.shared.windows.first!
-        window.rootViewController = tabBarController
+        let window = UIApplication.shared.windows.first
+        window?.rootViewController = tabBarController
     }
 }
 
 // MARK: AuthViewController Case Transition
 
 extension SplashViewController: AuthViewControllerDelegate {
-    func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String) {
+    func onAuthSuccess(_ vc: AuthViewController, didAuthenticateWithCode code: String) {
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
             self.fetchOAuthToken(with: code)
         }
     }
-  
+    
     private func fetchOAuthToken(with code: String) {
-            oauth2Service.fetchAuthToken(code: code) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let token):
-                    tokenStorage.token = token
-                    fetchProfile(with: token)
-                case .failure(let error):
-                    UIBlockingProgressHUD.dismiss()
-                    showAlert(with: error)
-                }
+        oauth2Service.fetchAuthToken(code: code) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let token):
+                tokenStorage.token = token
+                fetchProfile(with: token)
+            case .failure(let error):
+                UIBlockingProgressHUD.dismiss()
+                showAlert(with: error)
             }
         }
-        
-        private func fetchProfile(with token: String) {
-            profileService.fetchProfile(token) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let profile):
-                    ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { _ in }
-                    ImagesListService.shared.fetchPhotosNextPage { [weak self] result in
-                                        guard let self = self else { return }
-                                        if case .failure(let error) = result {
-                                            self.showAlert(with: error)
-                                        }
-                                    }
-                    UIBlockingProgressHUD.dismiss()
-                    switchToTabBarController()
-                case .failure(let error):
-                    UIBlockingProgressHUD.dismiss()
-                    showAlert(with: error)
-                }
+    }
+    
+    private func fetchProfile(with token: String) {
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let profile):
+                ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { _ in }
+                UIBlockingProgressHUD.dismiss()
+                switchToTabBarController()
+            case .failure(let error):
+                UIBlockingProgressHUD.dismiss()
+                showAlert(with: error)
             }
         }
+    }
 }
 
 // MARK: - Layout
 
 extension SplashViewController {
     private func configureComponents() {
-        
         view.addSubview(imageView)
         NSLayoutConstraint.activate([
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),

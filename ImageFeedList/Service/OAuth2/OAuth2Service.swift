@@ -10,6 +10,7 @@ import UIKit
 final class OAuth2Service {
     
     static let shared = OAuth2Service()
+    var isLoading = false
     
     private let urlSession = URLSession.shared
     private var lastCode: String?
@@ -39,6 +40,7 @@ final class OAuth2Service {
                 self.lastCode = nil
                 completion(.failure(error))
             }
+            self.isLoading = false
         }
         self.task = task
         task.resume()

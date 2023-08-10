@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class SingleImageViewController: UIViewController {
     
@@ -13,8 +14,6 @@ final class SingleImageViewController: UIViewController {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.backgroundColor = .ypBlack
-        scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 1.25
         return scrollView
     }()
     
@@ -35,7 +34,7 @@ final class SingleImageViewController: UIViewController {
         return button
     }()
     
-    private var shareButton: UIButton = {
+    private let shareButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("", for: .normal)
@@ -44,13 +43,7 @@ final class SingleImageViewController: UIViewController {
         return button
     }()
     
-    var image: UIImage! {
-        didSet {
-            guard isViewLoaded else { return }
-            imageView.image = image
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-    }
+    var photo: Photo!
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -59,12 +52,41 @@ final class SingleImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupScrollView()
+        
         view.backgroundColor = .ypBlack
-        scrollView.delegate = self
-        imageView.image = image
         addSubviews()
         setupConstraints()
-        rescaleAndCenterImageInScrollView(image: image)
+        loadPhoto()
+        setupConstraints()
+    }
+    
+    private func loadPhoto() {
+        UIBlockingProgressHUD.show()
+        imageView.kf.setImage(with: URL(string: photo.largeImageURL)) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let value):
+                rescaleAndCenterImageInScrollView(image: value.image)
+            case .failure(let error):
+                showError(error)
+            }
+            UIBlockingProgressHUD.dismiss()
+        }
+    }
+    
+    private func showError(_ error: Error) {
+        let alertController = UIAlertController(title: "Что-то пошло не так", message: "Попробовать езще раз?", preferredStyle: .alert)
+        let yesAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            loadPhoto()
+        }
+        let noAction = UIAlertAction(title: "Не надо", style: .default) { _ in
+            alertController.dismiss(animated: true)
+        }
+        alertController.addAction(yesAction)
+        alertController.addAction(noAction)
+        self.present(alertController, animated: true)
     }
     
     private func addSubviews() {
@@ -93,6 +115,14 @@ final class SingleImageViewController: UIViewController {
         ])
     }
     
+    private func setupScrollView() {
+        scrollView.delegate = self
+        scrollView.minimumZoomScale = 0.1
+        scrollView.maximumZoomScale = 1.2
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+    }
+    
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
         let minZoomScale = scrollView.minimumZoomScale
         let maxZoomScale = scrollView.maximumZoomScale
@@ -117,14 +147,15 @@ final class SingleImageViewController: UIViewController {
     
     @objc
     private func didTapShareButton() {
-        guard let image = image else { return }
         let activityVC = UIActivityViewController(
-            activityItems: [image],
+            activityItems: [imageView.image],
             applicationActivities: nil
         )
         present(activityVC, animated: true)
     }
 }
+
+// MARK: - UIScrollViewDelegate
 
 extension SingleImageViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {

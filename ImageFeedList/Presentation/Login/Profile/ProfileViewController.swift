@@ -17,7 +17,6 @@ final class ProfileViewController: UIViewController {
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.layer.cornerRadius = 35
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         return imageView
@@ -27,7 +26,6 @@ final class ProfileViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 23, weight: .bold)
         label.textColor = UIColor.ypWhite
-        label.text = "Екатерина Новикова"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -36,7 +34,6 @@ final class ProfileViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textColor = UIColor.ypGray
-        label.text = "@ekaterina_nov"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -45,7 +42,6 @@ final class ProfileViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textColor = UIColor.ypWhite
-        label.text = "Hello, World!"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -92,7 +88,7 @@ final class ProfileViewController: UIViewController {
     private func setAvatar(_ url: URL) {
         let cache = ImageCache.default
         cache.clearDiskCache()
-        let processor = RoundCornerImageProcessor(cornerRadius: 25)
+        let processor = RoundCornerImageProcessor(cornerRadius: 36)
         
         avatarImageView.kf.setImage(
             with: url,
@@ -113,9 +109,27 @@ final class ProfileViewController: UIViewController {
         setAvatar(url)
     }
     
-    @objc
-    private func logOutButtonPressed() {}
+    @objc private func logOutButtonPressed() {
+        let alertController = UIAlertController(title: "Пока, пока!", message: "Уверены, что хотите выйти?", preferredStyle: .alert)
+        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            self.cleanAndSwitchToSplashVC()
+        }
+        let noAction = UIAlertAction(title: "Нет", style: .default) { _ in
+            alertController.dismiss(animated: true)
+        }
+        alertController.addAction(yesAction)
+        alertController.addAction(noAction)
+        self.present(alertController, animated: true)
+    }
     
+    private func cleanAndSwitchToSplashVC() {
+            WebViewViewController.clean()
+            OAuth2TokenStorage.shared.removeToken()
+            let window = UIApplication.shared.windows.first
+            let splashVC = SplashViewController()
+            window?.rootViewController = splashVC
+        }
 }
 
 // MARK: - Layout

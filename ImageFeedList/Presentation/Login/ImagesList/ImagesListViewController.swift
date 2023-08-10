@@ -22,7 +22,7 @@ final class ImagesListViewController: UIViewController {
     private let imagesListService = ImagesListService.shared
     private var imageListServiceObserver: NSObjectProtocol?
     
-    var photos: [PhotoModel] = []
+    var photos: [Photo] = []
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -32,6 +32,7 @@ final class ImagesListViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .ypBlack
+        imagesListService.fetchPhotosNextPage()
         setupTableView()
         addObserver()
     }
@@ -92,7 +93,7 @@ extension ImagesListViewController: UITableViewDataSource {
         }
         imageListCell.delegate = self
         let model = ImagesListCellModel(
-            imageURL: photos[indexPath.row].largeImageURL,
+            imageURL: photos[indexPath.row].thumbImageURL,
             imageIsLiked: photos[indexPath.row].isLiked,
             date: photos[indexPath.row].createdAt
         )
@@ -117,13 +118,19 @@ extension ImagesListViewController: UITableViewDelegate {
         return imageViewHeight
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            tableView.deselectRow(at: indexPath, animated: true)
+
+            let singleImageVC = SingleImageViewController()
+            let photo = photos[indexPath.row]
+            singleImageVC.photo = photo
+            singleImageVC.modalPresentationStyle = .fullScreen
+            present(singleImageVC, animated: true)
+        }
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row == photos.count - 1 {
-            imagesListService.fetchPhotosNextPage({ result in
-                if case .failure(let error) = result {
-                    assertionFailure(error.description(of: error))
-                }
-            })
+            imagesListService.fetchPhotosNextPage()
         }
     }
 }
@@ -134,9 +141,9 @@ extension ImagesListViewController: ImagesListCellDelegate {
     func imagesListCellDidTapLike(_ cell: ImagesListCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let photo = photos[indexPath.row]
+        UIBlockingProgressHUD.show()
         imagesListService.changeLike(photoId: photo.id, isLike: photo.isLiked) { [weak self] result in
             guard let self = self else { return }
-            
             switch result {
             case .success(_):
                 self.photos[indexPath.row] = imagesListService.photos[indexPath.row]
@@ -144,6 +151,7 @@ extension ImagesListViewController: ImagesListCellDelegate {
             case .failure(let error):
                 assertionFailure(error.description(of: error))
             }
+            UIBlockingProgressHUD.dismiss()
         }
     }
 }

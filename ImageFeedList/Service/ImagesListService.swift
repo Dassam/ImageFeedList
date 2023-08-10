@@ -8,14 +8,12 @@
 import UIKit
 
 final class ImagesListService {
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        return formatter
+    private lazy var dateFormatter = {
+            return ISO8601DateFormatter()
     }()
     
     private init() {}
-    private (set) var photos: [PhotoModel] = []
+    private (set) var photos: [Photo] = []
     private var lastLoadedPage: Int?
     private var task: URLSessionTask?
     private let tokenStorage = OAuth2TokenStorage.shared
@@ -23,9 +21,9 @@ final class ImagesListService {
     static let shared = ImagesListService()
     static let didChangeNotification = Notification.Name("ImagesListServiceDidChange")
     
-    func fetchPhotosNextPage(_ completion: @escaping (Result<Void, Error>) -> Void) {
+    func fetchPhotosNextPage() {
         assert(Thread.isMainThread)
-        task?.cancel()
+        guard task == nil else { return }
         
         let nextPage = lastLoadedPage == nil ? 1 : lastLoadedPage.number + 1
         
@@ -42,15 +40,15 @@ final class ImagesListService {
             self.task = nil
             
             switch result {
-            case .success(let photosInfo):
-                let mapPhotos = photosInfo.map {
-                    PhotoModel(id: $0.id,
-                               size: CGSize(width: $0.width, height: $0.height),
-                               createdAt: self.dateFormatter.date(from: $0.createdAt),
-                               welcomeDescription: $0.description,
-                               thumbImageURL: $0.urls.thumb,
-                               largeImageURL: $0.urls.regular,
-                               isLiked: $0.likedByUser
+            case .success(let photosData):
+                let mapPhotos = photosData.map {
+                    Photo(id: $0.id,
+                          size: CGSize(width: $0.width, height: $0.height),
+                          createdAt: self.dateFormatter.date(from: $0.createdAt),
+                          welcomeDescription: $0.description,
+                          thumbImageURL: $0.urls.thumb,
+                          largeImageURL: $0.urls.full,
+                          isLiked: $0.likedByUser
                     )
                 }
                 DispatchQueue.main.async {
@@ -68,13 +66,7 @@ final class ImagesListService {
     
     func changeLike(photoId: String, isLike: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
         
-        var request: URLRequest?
-        
-        if isLike {
-            request = URLRequest.makeHTTPRequest(path: "/photos/\(photoId)/like", httpMethod: "DELETE")
-        } else {
-            request = URLRequest.makeHTTPRequest(path: "/photos/\(photoId)/like", httpMethod: "POST")
-        }
+        let request = URLRequest.makeHTTPRequest(path: "/photos/\(photoId)/like", httpMethod: isLike ? "DELETE" : "POST")
         
         guard var request = request,
               let token = tokenStorage.token else {
@@ -104,7 +96,7 @@ final class ImagesListService {
             DispatchQueue.main.async {
                 if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
                     let oldPhoto = self.photos[index]
-                    let newPhoto = PhotoModel(
+                    let newPhoto = Photo(
                         id: oldPhoto.id,
                         size: oldPhoto.size,
                         createdAt: oldPhoto.createdAt,

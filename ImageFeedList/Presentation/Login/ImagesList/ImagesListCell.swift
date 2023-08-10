@@ -103,6 +103,7 @@ final class ImagesListCell: UITableViewCell {
     
     func configure(with model: ImagesListCellModel) {
         cellImageView.kf.indicatorType = .activity
+        
         if let url = URL(string: model.imageURL) {
             cellImageView.kf.setImage(with: url, placeholder: UIImage(named: "stub")) { [weak self] _ in
                 guard let self = self else { return }
@@ -110,7 +111,11 @@ final class ImagesListCell: UITableViewCell {
             }
         }
         
-        dateLabel.text = dateFormatter.string(from: model.date ?? Date())
+        if let date = model.date {
+                    dateLabel.text = dateFormatter.string(from: date)
+        } else {
+            dateLabel.text = ""
+        }
         
         let like = model.imageIsLiked ? UIImage(named: "like_button_on") : UIImage(named: "like_button_off")
         likeButton.setImage(like, for: .normal)
