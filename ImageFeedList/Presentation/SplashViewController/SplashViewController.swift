@@ -84,9 +84,7 @@ extension SplashViewController: AuthViewControllerDelegate {
                 UIBlockingProgressHUD.dismiss()
                 switchToTabBarController()
             case .failure(let error):
-                if let networkError = error as? [NetworkError] {
-                  
-                }
+                if let networkError = error as? [NetworkError] { }
                 else {
                     // obj is not a string array
                 }

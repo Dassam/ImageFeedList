@@ -62,7 +62,6 @@ final class ImagesListService {
                 DispatchQueue.main.async {
                     NotificationCenter.default.post(name: Self.didChangeNotificationError, object: self)
                 }
-                //assertionFailure(error.localizedDescription)
             }
         }
         self.task = task

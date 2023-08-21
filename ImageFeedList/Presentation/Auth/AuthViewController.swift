@@ -38,13 +38,15 @@ final class AuthViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .ypBlack
-        configureComponents()
+        setupViews()
+        setupConstraints()
     }
 
-    @objc
-    private func buttonTapped() {
+    @objc private func buttonTapped() {
         let webViewVC = WebViewViewController()
+        let presenter = WebViewPresenter(authHelper: AuthHelper())
+        webViewVC.presenter = presenter
+        presenter.view = webViewVC
         webViewVC.delegate = self
         webViewVC.modalPresentationStyle = .fullScreen
         present(webViewVC, animated: true)
@@ -55,7 +57,7 @@ final class AuthViewController: UIViewController {
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func onAuthSuccess(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        fetchOAuthToken(with:code)
+        fetchOAuthToken(with: code)
     }
     
     private func fetchOAuthToken(with code: String) {
@@ -79,11 +81,14 @@ extension AuthViewController: WebViewViewControllerDelegate {
 // MARK: - Layout
 
 extension AuthViewController {
-    private func configureComponents() {
-       
+    
+    private func setupViews() {
+        view.backgroundColor = .ypBlack
         view.addSubview(logoImageView)
         view.addSubview(loginButton)
-        
+    }
+    
+    private func setupConstraints() {
         let safeArea = view.safeAreaLayoutGuide
         
         NSLayoutConstraint.activate([
@@ -100,4 +105,3 @@ extension AuthViewController {
         ])
     }
 }
-

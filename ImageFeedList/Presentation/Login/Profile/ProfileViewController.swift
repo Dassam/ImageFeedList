@@ -7,6 +7,7 @@
 
 import UIKit
 import Kingfisher
+import WebKit
 
 final class ProfileViewController: UIViewController {
     
@@ -124,12 +125,21 @@ final class ProfileViewController: UIViewController {
     }
     
     private func cleanAndSwitchToSplashVC() {
-            WebViewViewController.clean()
-            OAuth2TokenStorage.shared.removeToken()
-            let window = UIApplication.shared.windows.first
-            let splashVC = SplashViewController()
-            window?.rootViewController = splashVC
+        cleanCookies()
+        OAuth2TokenStorage.shared.removeToken()
+        let window = UIApplication.shared.windows.first
+        let splashVC = SplashViewController()
+        window?.rootViewController = splashVC
+    }
+    
+    private func cleanCookies() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            records.forEach { record in
+                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
+            }
         }
+    }
 }
 
 // MARK: - Layout

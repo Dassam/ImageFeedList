@@ -12,6 +12,7 @@ final class OAuth2Service {
     static let shared = OAuth2Service()
     var isLoading = false
     
+    private let configuration = AuthConfiguration.standard
     private let urlSession = URLSession.shared
     private var lastCode: String?
     private var task: URLSessionTask?
@@ -47,17 +48,16 @@ final class OAuth2Service {
     }
     
     private func makeRequest(with code: String) -> URLRequest? {
-        guard var urlComponents = URLComponents(string: .key(.accessTokenURL)) else {
-            fatalError("Failed to make urlComponents from \(Constants.accessTokenURL)")
+        guard var urlComponents = URLComponents(string: configuration.accessTokenURL) else {
+            fatalError("Failed to make urlComponents from \(configuration.accessTokenURL)")
         }
         
         urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: .key(.accessKey)),
-            URLQueryItem(name: "client_secret", value: .key(.secretKey)),
-            URLQueryItem(name: "redirect_uri", value: .key(.redirectURI)),
+            URLQueryItem(name: "client_id", value: configuration.accessKey),
+            URLQueryItem(name: "client_secret", value: configuration.secretKey),
+            URLQueryItem(name: "redirect_uri", value: configuration.redirectURI),
             URLQueryItem(name: "code", value: code),
-            URLQueryItem(name: "grant_type", value: "authorization_code")
-        ]
+            URLQueryItem(name: "grant_type", value: "authorization_code")]
         
         guard let url = urlComponents.url else {
             fatalError("Failed to make URL from \(urlComponents)")
@@ -66,6 +66,5 @@ final class OAuth2Service {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         return request
-        
     }
 }

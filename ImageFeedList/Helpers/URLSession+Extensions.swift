@@ -24,6 +24,7 @@ extension URLSession {
                 if let response = response as? HTTPURLResponse {
                     if !(200..<300 ~= response.statusCode) {
                         completion(.failure(NetworkError.httpStatusCode(response.statusCode)))
+                        return
                     }
                 }
                 
