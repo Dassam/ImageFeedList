@@ -45,13 +45,6 @@ final class ImagesListCell: UITableViewCell {
         return label
     }()
     
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "RU_ru")
-        formatter.dateFormat = "dd MMMM yyyy"
-        return formatter
-    }()
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.backgroundColor = .ypBlack
@@ -112,7 +105,7 @@ final class ImagesListCell: UITableViewCell {
         }
         
         if let date = model.date {
-                    dateLabel.text = dateFormatter.string(from: date)
+            dateLabel.text = date.toStringDate()
         } else {
             dateLabel.text = ""
         }

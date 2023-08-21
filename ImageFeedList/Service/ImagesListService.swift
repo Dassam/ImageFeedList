@@ -9,17 +9,19 @@ import UIKit
 
 final class ImagesListService {
     private lazy var dateFormatter = {
-            return ISO8601DateFormatter()
+        return ISO8601DateFormatter()
     }()
     
     private init() {}
     private (set) var photos: [Photo] = []
+    private (set) var error: Error?
     private var lastLoadedPage: Int?
     private var task: URLSessionTask?
     private let tokenStorage = OAuth2TokenStorage.shared
     
     static let shared = ImagesListService()
     static let didChangeNotification = Notification.Name("ImagesListServiceDidChange")
+    static let didChangeNotificationError = Notification.Name("ImagesListServiceError")
     
     func fetchPhotosNextPage() {
         assert(Thread.isMainThread)
@@ -56,7 +58,11 @@ final class ImagesListService {
                     NotificationCenter.default.post(name: Self.didChangeNotification, object: self)
                 }
             case .failure(let error):
-                assertionFailure(error.localizedDescription)
+                self.error = error
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Self.didChangeNotificationError, object: self)
+                }
+                //assertionFailure(error.localizedDescription)
             }
         }
         self.task = task

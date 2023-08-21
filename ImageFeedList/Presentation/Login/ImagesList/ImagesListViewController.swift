@@ -20,7 +20,6 @@ final class ImagesListViewController: UIViewController {
     }()
     
     private let imagesListService = ImagesListService.shared
-    private var imageListServiceObserver: NSObjectProtocol?
     
     var photos: [Photo] = []
     
@@ -35,6 +34,7 @@ final class ImagesListViewController: UIViewController {
         imagesListService.fetchPhotosNextPage()
         setupTableView()
         addObserver()
+        addObserverError()
     }
     
     private func setupTableView() {
@@ -65,7 +65,7 @@ final class ImagesListViewController: UIViewController {
     }
     
     private func addObserver() {
-        imageListServiceObserver = NotificationCenter.default.addObserver(
+        NotificationCenter.default.addObserver(
             forName: ImagesListService.didChangeNotification,
             object: nil,
             queue: .main,
@@ -75,6 +75,21 @@ final class ImagesListViewController: UIViewController {
             }
         )
     }
+    
+    private func addObserverError() {
+        NotificationCenter.default.addObserver(
+            forName: ImagesListService.didChangeNotificationError,
+            object: nil,
+            queue: .main,
+            using: { [weak self] _ in
+                guard let self = self else { return }
+                if let error = imagesListService.error {
+                    Alert.showAlert(with: error, view: self)
+                }
+            }
+        )
+    }
+    
 }
 
 // MARK: - UITableViewDataSource

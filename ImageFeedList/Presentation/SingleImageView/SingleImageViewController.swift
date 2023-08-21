@@ -76,7 +76,7 @@ final class SingleImageViewController: UIViewController {
     }
     
     private func showError(_ error: Error) {
-        let alertController = UIAlertController(title: "Что-то пошло не так", message: "Попробовать езще раз?", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Что-то пошло не так", message: "Попробовать еще раз?", preferredStyle: .alert)
         let yesAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
             guard let self = self else { return }
             loadPhoto()
