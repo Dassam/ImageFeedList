@@ -12,11 +12,14 @@ protocol ProfileViewControllerProtocol: AnyObject {
     var presenter: ProfileViewPresenterProtocol? { get set }
     func showAlertController(_ alertController: UIAlertController)
     func setAvatar(_ url: URL)
+    func updateProfileDetails(with model: ProfileViewModel)
 }
 
 final class ProfileViewController: UIViewController & ProfileViewControllerProtocol {
     
     var presenter: ProfileViewPresenterProtocol?
+    //private var labelsGradientViews: Set<GradientView> = []
+    // private var profileImageGradientView: GradientView!
     
     // MARK: View components
     
@@ -60,18 +63,27 @@ final class ProfileViewController: UIViewController & ProfileViewControllerProto
         )
         button.tintColor = .ypRed
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = "Logout"
         return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        setupConstraints()
-        presenter?.addObserverForImageURL()
-        updateProfileDetails()
+        presenter?.viewDidLoad()
+        //addGradientViews()
     }
     
-    deinit { presenter?.removeObserverForImageURL() }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        presenter?.viewWillAppear()
+        setupConstraints()
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        presenter?.viewWillDisappear()
+    }
     
     func showAlertController(_ alertController: UIAlertController) {
         present(alertController, animated: true)
@@ -84,18 +96,15 @@ final class ProfileViewController: UIViewController & ProfileViewControllerProto
         
         avatarImageView.kf.setImage(
             with: url,
-            placeholder: UIImage(named: "placeholder"),
+            placeholder: UIImage(named: "userpick_stub"),
             options: [.processor(processor), .transition(.fade(1))]
         )
     }
     
-    private func updateProfileDetails() {
-        if let model = presenter?.convertResultToViewModel() {
-            nameLabel.text = model.name
-            loginNameLabel.text = model.userName
-            descriptionLabel.text = model.description
-        }
-        presenter?.checkImageURL()
+    func updateProfileDetails(with model: ProfileViewModel) {
+        nameLabel.text = model.name
+        loginNameLabel.text = model.userName
+        descriptionLabel.text = model.description
     }
     
     @objc private func logoutButtonPressed() {

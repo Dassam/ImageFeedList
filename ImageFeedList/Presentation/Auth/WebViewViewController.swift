@@ -20,6 +20,7 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.backgroundColor = .ypWhite
         webView.isOpaque = false
+        webView.accessibilityIdentifier = "UnsplashWebView"
         return webView
     }()
     

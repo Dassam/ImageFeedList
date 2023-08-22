@@ -10,24 +10,56 @@ import WebKit
 
 protocol ProfileViewPresenterProtocol {
     var view: ProfileViewControllerProtocol? { get set }
-    func addObserverForImageURL()
-    func removeObserverForImageURL()
-    func cleanAndSwitchToSplashVC()
+    func viewDidLoad()
+    func viewWillAppear()
+    func viewWillDisappear()
     func didTapLogoutButton()
-    func convertResultToViewModel() -> ProfileViewModel?
-    func checkImageURL()
 }
 
 final class ProfileViewPresenter: ProfileViewPresenterProtocol {
     weak var view: ProfileViewControllerProtocol?
     private let profileService: ProfileServiceProtocol
-    private let profileImageService = ProfileImageService.shared
+    private let profileImageService: ProfileImageServiceProtocol
     
-    init(profileService: ProfileServiceProtocol) {
+    init(profileService: ProfileServiceProtocol = ProfileService.shared,
+         profileImageService: ProfileImageServiceProtocol = ProfileImageService.shared) {
         self.profileService = profileService
+        self.profileImageService = profileImageService
     }
     
-    func addObserverForImageURL() {
+    func viewDidLoad() {
+        convertResultToViewModel()
+        checkImageURL()
+    }
+    func viewWillAppear() { addObserverForImageURL() }
+    func viewWillDisappear() { removeObserverForImageURL() }
+    
+    func didTapLogoutButton() {
+        let alertController = UIAlertController(title: "Пока, пока!", message: "Уверены, что хотите выйти?", preferredStyle: .alert)
+        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            self.cleanAndSwitchToSplashVC()
+        }
+        yesAction.accessibilityIdentifier = "Ok"
+        let noAction = UIAlertAction(title: "Нет", style: .default) { _ in
+            alertController.dismiss(animated: true)
+        }
+        alertController.addAction(yesAction)
+        alertController.addAction(noAction)
+        alertController.view.accessibilityIdentifier = "Alert"
+        view?.showAlertController(alertController)
+    }
+    
+    @objc private func updateAvatar(notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let profileImageURL = userInfo["URL"] as? String,
+            let url = URL(string: profileImageURL)
+        else { return }
+        view?.setAvatar(url)
+    }
+    
+    private func addObserverForImageURL() {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(updateAvatar(notification:)),
@@ -36,7 +68,7 @@ final class ProfileViewPresenter: ProfileViewPresenterProtocol {
         )
     }
     
-    func removeObserverForImageURL() {
+    private func removeObserverForImageURL() {
         NotificationCenter.default.removeObserver(
             self,
             name: ProfileImageService.didChangeNotification,
@@ -44,17 +76,17 @@ final class ProfileViewPresenter: ProfileViewPresenterProtocol {
         )
     }
     
-    func convertResultToViewModel() -> ProfileViewModel? {
-        guard let profile = profileService.profile else { return nil }
+    private func convertResultToViewModel() {
+        guard let profile = profileService.profile else { return }
         let viewModel = ProfileViewModel(
             name: "\(profile.firstName) \(profile.lastName ?? "")",
             userName: "@\(profile.username)",
             description: profile.bio ?? ""
         )
-        return viewModel
+        view?.updateProfileDetails(with: viewModel)
     }
     
-    func checkImageURL() {
+    private func checkImageURL() {
         if let imageURL = profileImageService.avatarURL,
            let url = URL(string: imageURL) {
             view?.setAvatar(url)
@@ -67,29 +99,6 @@ final class ProfileViewPresenter: ProfileViewPresenterProtocol {
         let window = UIApplication.shared.windows.first
         let splashVC = SplashViewController()
         window?.rootViewController = splashVC
-    }
-    
-    func didTapLogoutButton() {
-        let alertController = UIAlertController(title: "Пока, пока!", message: "Уверены, что хотите выйти?", preferredStyle: .alert)
-        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.cleanAndSwitchToSplashVC()
-        }
-        let noAction = UIAlertAction(title: "Нет", style: .default) { _ in
-            alertController.dismiss(animated: true)
-        }
-        alertController.addAction(yesAction)
-        alertController.addAction(noAction)
-        view?.showAlertController(alertController)
-    }
-    
-    @objc private func updateAvatar(notification: Notification) {
-        guard
-            let userInfo = notification.userInfo,
-            let profileImageURL = userInfo["URL"] as? String,
-            let url = URL(string: profileImageURL)
-        else { return }
-        view?.setAvatar(url)
     }
     
     private func cleanCookies() {

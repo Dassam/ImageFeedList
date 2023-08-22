@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE0185022A94B212003C2103 /* ImagesListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE0185012A94B212003C2103 /* ImagesListTests.swift */; };
+		CE0185042A94D142003C2103 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE0185032A94D142003C2103 /* AppError.swift */; };
 		CE0785782A6B1944000C4263 /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE0785772A6B1944000C4263 /* ProfileService.swift */; };
 		CE07857A2A6B26EE000C4263 /* ProfileImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE0785792A6B26EE000C4263 /* ProfileImageService.swift */; };
 		CE07857C2A6B37A0000C4263 /* URLSession+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07857B2A6B37A0000C4263 /* URLSession+Extensions.swift */; };
@@ -87,6 +89,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CE0185012A94B212003C2103 /* ImagesListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListTests.swift; sourceTree = "<group>"; };
+		CE0185032A94D142003C2103 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		CE0785772A6B1944000C4263 /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		CE0785792A6B26EE000C4263 /* ProfileImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageService.swift; sourceTree = "<group>"; };
 		CE07857B2A6B37A0000C4263 /* URLSession+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSession+Extensions.swift"; sourceTree = "<group>"; };
@@ -312,6 +316,7 @@
 				CEC38E672A94201D00903074 /* ProfileViewTests.swift */,
 				CEC38E6B2A942ADC00903074 /* URLRequestTests.swift */,
 				CEC38E6D2A942B0A00903074 /* OptionalTests.swift */,
+				CE0185012A94B212003C2103 /* ImagesListTests.swift */,
 			);
 			path = ImageFeedTests;
 			sourceTree = "<group>";
@@ -329,6 +334,7 @@
 			isa = PBXGroup;
 			children = (
 				CECF69172A81A28C000E223F /* NetworkError.swift */,
+				CE0185032A94D142003C2103 /* AppError.swift */,
 			);
 			path = Enums;
 			sourceTree = "<group>";
@@ -623,6 +629,7 @@
 				CE6033082A28D39F009E9C61 /* UIColor+Extensions.swift in Sources */,
 				CEC38E372A93F22E00903074 /* WebViewViewControllerProtocol.swift in Sources */,
 				CE0ABE622A76E68E004389B9 /* ImagesListService.swift in Sources */,
+				CE0185042A94D142003C2103 /* AppError.swift in Sources */,
 				CE07857A2A6B26EE000C4263 /* ProfileImageService.swift in Sources */,
 				CEE8BDAF2A823946007B7625 /* PhotoResult.swift in Sources */,
 				CECF69152A81A0D3000E223F /* Error+Extensions.swift in Sources */,
@@ -659,6 +666,7 @@
 				CEC38E4E2A940BE700903074 /* WebViewTests.swift in Sources */,
 				CEC38E6C2A942ADC00903074 /* URLRequestTests.swift in Sources */,
 				CEC38E6E2A942B0A00903074 /* OptionalTests.swift in Sources */,
+				CE0185022A94B212003C2103 /* ImagesListTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

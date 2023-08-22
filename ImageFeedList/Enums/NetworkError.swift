@@ -8,12 +8,11 @@
 import Foundation
 
 enum NetworkError: Error {
-    case codeError
     case httpStatusCode(Int)
     case urlRequestError(Error)
     case urlSessionError(Error)
+    case decodeError(Error)
+    case unknownError
 }
 
-enum ParseError: Error {
-    case decodeError(Error)
-}
+

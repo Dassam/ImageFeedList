@@ -7,14 +7,22 @@
 
 import UIKit
 
-final class ProfileImageService {
+protocol ProfileImageServiceProtocol {
+    static var shared: ProfileImageServiceProtocol { get }
+    var avatarURL: String? { get }
+    func fetchProfileImageURL(username: String, completion: @escaping (Result<String, Error>) -> Void)
+}
+
+final class ProfileImageService: ProfileImageServiceProtocol {
+    
+    static let didChangeNotification = Notification.Name("ProfileImageProviderDidChange")
+    static let shared: ProfileImageServiceProtocol = ProfileImageService()
+    
     private var task: URLSessionTask?
     private(set) var avatarURL: String?
     private let urlSession = URLSession.shared
     private var tokenStorage = OAuth2TokenStorage.shared
-        
-    static let didChangeNotification = Notification.Name("ProfileImageProviderDidChange")
-    static let shared = ProfileImageService()
+            
     private init() {}
     
     func fetchProfileImageURL(username: String, completion: @escaping (Result<String, Error>) -> Void) {
@@ -31,7 +39,7 @@ final class ProfileImageService {
         
         let task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileImageResult, Error>) in
             guard let self = self else { return }
-            self.task = nil
+            defer { self.task = nil }
             
             switch result {
             case .success(let user):

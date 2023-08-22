@@ -7,17 +7,19 @@
 
 import Foundation
 
-extension Error {
-    func description(of error: Error) -> String {
-        switch error {
-        case NetworkError.httpStatusCode(let code):
-            return "Failed with status code from server - \(code)"
-        case NetworkError.urlSessionError(let error):
-            return "Failed with url session error - \(error)"
-        case ParseError.decodeError(let error):
-            return "Failed with decoding - \(error)"
-        default:
-            return "Unknown error - \(error)"
+extension NetworkError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .httpStatusCode(let code):
+            return NSLocalizedString("Response code - \(code)", comment: "Network error")
+        case .urlSessionError(let error):
+            return NSLocalizedString("Failed with session - \(error)", comment: "Network error")
+        case .decodeError(let error):
+            return NSLocalizedString("Failed with decode model - \(error)", comment: "Network error")
+        case .urlRequestError(let error):
+            return NSLocalizedString("Failed with session - \(error)", comment: "Network error")
+        case .unknownError:
+            return NSLocalizedString("Unknown error", comment: "URL Session error")
         }
     }
 }

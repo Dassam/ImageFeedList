@@ -9,35 +9,31 @@ import UIKit
 
 protocol ImagesListPresenterProtocol {
     var view: ImagesListViewControllerProtocol? { get }
+    func viewDidLoad()
     func numberOfRowsInSection() -> Int
     func heightForRow(at indexPath: IndexPath, with tableViewWidth: CGFloat) -> CGFloat
-    func didSelectRow(at indexPath: IndexPath)
-    func willDisplayCell(at indexPath: IndexPath)
+    func rowDidSelect(at indexPath: IndexPath)
+    func cellWillDisplay(at indexPath: IndexPath)
     func likeDidTapped(at indexPath: IndexPath)
-    func createModel(at indexPath: IndexPath) -> ImagesListCellModel
-    func fetchPhotosNextPage()
-    func addObserver()
+    func modelForCell(at indexPath: IndexPath) -> ImagesListCellModel
 }
 
 final class ImagesListPresenter: ImagesListPresenterProtocol {
+    
     weak var view: ImagesListViewControllerProtocol?
     private var photos: [Photo] = []
-    private let imagesListService = ImagesListService.shared
+    private let imagesListService: ImagesListServiceProtocol
     private var imagesListServiceObserver: NSObjectProtocol?
     
-    func addObserver() {
-        imagesListServiceObserver = NotificationCenter.default.addObserver(
-            forName: ImagesListService.didChangeNotification,
-            object: nil,
-            queue: .main,
-            using: { [weak self] _ in
-                guard let self = self else { return }
-                self.calculateIndexPaths()
-            }
-        )
+    init(imagesListService: ImagesListServiceProtocol = ImagesListService.shared) {
+        self.imagesListService = imagesListService
     }
     
-    func fetchPhotosNextPage() { imagesListService.fetchPhotosNextPage() }
+    func viewDidLoad() {
+        addObserver()
+        fetchPhotosNextPage()
+        if let view = view as? ImagesListViewController {}
+    }
     
     func numberOfRowsInSection() -> Int { photos.count }
     
@@ -51,7 +47,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
         return imageViewHeight
     }
     
-    func createModel(at indexPath: IndexPath) -> ImagesListCellModel {
+    func modelForCell(at indexPath: IndexPath) -> ImagesListCellModel {
         ImagesListCellModel(
             imageURL: photos[indexPath.row].thumbImageURL,
             imageIsLiked: photos[indexPath.row].isLiked,
@@ -59,7 +55,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
         )
     }
     
-    func didSelectRow(at indexPath: IndexPath) {
+    func rowDidSelect(at indexPath: IndexPath) {
         let vc = SingleImageViewController()
         let photo = photos[indexPath.row]
         vc.photo = photo
@@ -67,25 +63,55 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
         view?.showSingleImageVC(vc)
     }
     
-    func willDisplayCell(at indexPath: IndexPath) {
+    func cellWillDisplay(at indexPath: IndexPath) {
         if indexPath.row == photos.count - 1 {
-            imagesListService.fetchPhotosNextPage()
+            fetchPhotosNextPage()
         }
     }
     
     func likeDidTapped(at indexPath: IndexPath) {
         let photo = photos[indexPath.row]
         view?.showProgressHUD()
-        imagesListService.changeLike(photoId: photo.id, isLike: photo.isLiked) { [weak self] result in
+        imagesListService.changeLike(photoId: photo.id, isLiked: photo.isLiked) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(_):
                 self.photos[indexPath.row] = imagesListService.photos[indexPath.row]
                 view?.reloadRows(at: [indexPath])
             case .failure(let error):
-                assertionFailure(error.description(of: error))
+                print(error.localizedDescription)
+                if let view = view as? ImagesListViewController {
+                    Alert.showAlert(with: error, view: view)
+                }
             }
             view?.dismissProgressHUD()
+        }
+    }
+    
+    func addObserver() {
+        imagesListServiceObserver = NotificationCenter.default.addObserver(
+            forName: ImagesListService.didChangeNotification,
+            object: nil,
+            queue: .main,
+            using: { [weak self] _ in
+                guard let self = self else { return }
+                self.calculateIndexPaths()
+            }
+        )
+    }
+    
+    private func fetchPhotosNextPage() {
+        imagesListService.fetchPhotosNextPage { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(_):
+                print("Success downloading photos")
+            case .failure(let error):
+                print(error.localizedDescription)
+                if let view = view as? ImagesListViewController {
+                    Alert.showAlert(with: error, view: view)
+                }
+            }
         }
     }
     
