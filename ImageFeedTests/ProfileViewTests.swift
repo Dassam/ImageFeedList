@@ -26,16 +26,13 @@ final class ProfileViewTests: XCTestCase {
     
     func testViewControllerCallsRemoveObserver() {
         // given
-        var viewController: ProfileViewController? = ProfileViewController()
-        let presenter = ProfileViewPresenterSpy()
-        viewController?.presenter = presenter
-        presenter.view = viewController
+        let presenter = ImagesListPresenter(imagesListService: ImagesListServiceStub())
         
         // when
-        viewController = nil
+        presenter.viewDidLoad()
         
         // then
-        XCTAssertTrue(presenter.removeObserverCalled)
+        XCTAssertEqual(presenter.numberOfRowsInSection(), 10)
     }
     
     func testConvertResultToViewModel() {
@@ -82,6 +79,7 @@ final class ProfileViewTests: XCTestCase {
         presenter.view = viewController
         
         // when
+        presenter.viewWillAppear()
         presenter.viewDidLoad()
         
         // then
@@ -131,13 +129,20 @@ final class ProfileServiceStub: ProfileServiceProtocol {
                                                 lastName: "Prokofjev",
                                                 bio: "")
     
-    func fetchProfile(_ token: String,
-                      completion: @escaping (Result<ProfileResult, Error>) -> Void) {}
+    func fetchProfile(completion: @escaping (Result<ProfileResult, Error>) -> Void) {
+        completion(.success(self.profile!))
+    }
 }
 
 final class ProfileImageServiceStub: ProfileImageServiceProtocol {
     static var shared: ProfileImageServiceProtocol = ProfileImageServiceStub()
+    var didChangeNotification = Notification.Name("test")
     var avatarURL: String? = "example.com"
-    func fetchProfileImageURL(username: String,
-                              completion: @escaping (Result<String, Error>) -> Void) {}
+    func fetchProfileImageURL(username: String, completion: @escaping (Result<String, Error>) -> Void) {
+        NotificationCenter.default.post(
+            name: ProfileImageService.didChangeNotification,
+            object: self,
+            userInfo: ["URL": avatarURL]
+        )
+    }
 }

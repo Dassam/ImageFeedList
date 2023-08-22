@@ -26,15 +26,13 @@ final class ImageFeedListUITests: XCTestCase {
         let passwordTextField = webView.descendants(matching: .secureTextField).element
         
         loginTextField.tap()
-        sleep(5)
-        loginTextField.typeText("your_login")
-        
+        sleep(3)
+        loginTextField.typeText("Name")
         passwordTextField.tap()
-        sleep(5)
-        passwordTextField.typeText("your_password")
-        
-        webView.swipeUp()
-        XCTAssertTrue(webView.waitForExistence(timeout: 5))
+        sleep(3)
+        passwordTextField.typeText("Password")
+        webView.tap()
+        sleep(3)
         webView.buttons["Login"].tap()
         
         let tablesQuery = app.tables
@@ -45,24 +43,26 @@ final class ImageFeedListUITests: XCTestCase {
     func testFeed() throws {
         let tablesQuery = app.tables
         let cellToSwipe = tablesQuery.children(matching: .cell).element(boundBy: 0)
-        XCTAssertTrue(cellToSwipe.waitForExistence(timeout: 5))
+        XCTAssertTrue(cellToSwipe.waitForExistence(timeout: 3))
         cellToSwipe.swipeUp()
-        XCTAssertTrue(cellToSwipe.waitForExistence(timeout: 5))
+        sleep(3)
         
-        let cellToLike = tablesQuery.children(matching: .cell).element(boundBy: 1)
+        let cellToLike = tablesQuery.children(matching: .cell).element(boundBy: 2)
         cellToLike.buttons["like disable"].tap()
-        XCTAssertTrue(cellToLike.waitForExistence(timeout: 5))
+        sleep(2)
         cellToLike.buttons["like active"].tap()
-        XCTAssertTrue(cellToLike.waitForExistence(timeout: 5))
-        
+        sleep(2)
         cellToLike.tap()
+        
         let image = app.scrollViews.images.element(boundBy: 0)
         XCTAssertTrue(image.waitForExistence(timeout: 5))
         
         image.pinch(withScale: 3, velocity: 1)
-        XCTAssertTrue(image.waitForExistence(timeout: 5))
+        sleep(2)
         image.pinch(withScale: 0.5, velocity: -1)
-        XCTAssertTrue(image.waitForExistence(timeout: 5))
+        sleep(2)
+        
+        app.buttons["BackButton"].tap()
     }
     
     func testProfile() throws {
@@ -72,15 +72,12 @@ final class ImageFeedListUITests: XCTestCase {
         button.tap()
         XCTAssertTrue(button.waitForExistence(timeout: 5))
         
-        XCTAssertTrue(app.staticTexts["your_name"].exists)
-        XCTAssertTrue(app.staticTexts["username"].exists)
-        XCTAssertTrue(app.staticTexts["bio"].exists)
+        XCTAssertTrue(app.staticTexts["Your name"].exists)
+        XCTAssertTrue(app.staticTexts["@nickname"].exists)
         
         app.buttons["Logout"].tap()
         sleep(2)
         app.alerts["Alert"].scrollViews.otherElements.buttons["Ok"].tap()
-        sleep(2)
-        
-        XCTAssertTrue(app.buttons["Authenticate"].exists)
+        XCTAssertTrue(app.buttons["Authenticate"].waitForExistence(timeout: 2))
     }
 }

@@ -129,7 +129,7 @@ extension ImagesListViewController: UITableViewDelegate {
 // MARK: - ImagesListCellDelegate
 
 extension ImagesListViewController: ImagesListCellDelegate {
-    func imagesListCellDidTapLike(at indexPath: IndexPath) {
+    func likeButtonDidTapped(at indexPath: IndexPath) {
         presenter?.likeDidTapped(at: indexPath)
     }
 }

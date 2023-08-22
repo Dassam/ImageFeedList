@@ -27,10 +27,7 @@ final class ProfileViewPresenter: ProfileViewPresenterProtocol {
         self.profileImageService = profileImageService
     }
     
-    func viewDidLoad() {
-        convertResultToViewModel()
-        checkImageURL()
-    }
+    func viewDidLoad() { fetchProfile()}
     func viewWillAppear() { addObserverForImageURL() }
     func viewWillDisappear() { removeObserverForImageURL() }
     
@@ -59,6 +56,19 @@ final class ProfileViewPresenter: ProfileViewPresenterProtocol {
         view?.setAvatar(url)
     }
     
+    private func fetchProfile() {
+        profileService.fetchProfile() { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let profile):
+                convertResultToViewModel()
+                profileImageService.fetchProfileImageURL(username: profile.username) { _ in }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     private func addObserverForImageURL() {
         NotificationCenter.default.addObserver(
             self,
@@ -84,13 +94,6 @@ final class ProfileViewPresenter: ProfileViewPresenterProtocol {
             description: profile.bio ?? ""
         )
         view?.updateProfileDetails(with: viewModel)
-    }
-    
-    private func checkImageURL() {
-        if let imageURL = profileImageService.avatarURL,
-           let url = URL(string: imageURL) {
-            view?.setAvatar(url)
-        }
     }
     
     func cleanAndSwitchToSplashVC() {

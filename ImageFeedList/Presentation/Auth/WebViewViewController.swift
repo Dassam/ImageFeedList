@@ -15,7 +15,7 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
     var presenter: WebViewPresenterProtocol?
     weak var delegate: WebViewViewControllerDelegate?
     
-    let webView: WKWebView! = {
+    private let webView: WKWebView = {
         let webView = WKWebView()
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.backgroundColor = .ypWhite
@@ -50,7 +50,7 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
         setupViews()
         setupConstraints()
         presenter?.viewDidLoad()
-        presenter?.observeWebViewProgress()
+        presenter?.observeProgressFor(webView)
     }
     
     func load(_ request: URLRequest) {

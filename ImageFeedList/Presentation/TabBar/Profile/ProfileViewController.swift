@@ -18,8 +18,8 @@ protocol ProfileViewControllerProtocol: AnyObject {
 final class ProfileViewController: UIViewController & ProfileViewControllerProtocol {
     
     var presenter: ProfileViewPresenterProtocol?
-    //private var labelsGradientViews: Set<GradientView> = []
-    // private var profileImageGradientView: GradientView!
+    private var labelsGradientViews: Set<GradientView> = []
+    private var profileImageGradientView: GradientView!
     
     // MARK: View components
     
@@ -27,7 +27,6 @@ final class ProfileViewController: UIViewController & ProfileViewControllerProto
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.clipsToBounds = true
-        imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     
@@ -70,14 +69,13 @@ final class ProfileViewController: UIViewController & ProfileViewControllerProto
     override func viewDidLoad() {
         super.viewDidLoad()
         presenter?.viewDidLoad()
-        //addGradientViews()
+        addGradientViews()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         presenter?.viewWillAppear()
         setupConstraints()
-        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -97,14 +95,19 @@ final class ProfileViewController: UIViewController & ProfileViewControllerProto
         avatarImageView.kf.setImage(
             with: url,
             placeholder: UIImage(named: "userpick_stub"),
-            options: [.processor(processor), .transition(.fade(1))]
-        )
+            options: [.processor(processor)]
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.profileImageGradientView.removeAllAnimations()
+            self.profileImageGradientView.removeFromSuperview()
+        }
     }
     
     func updateProfileDetails(with model: ProfileViewModel) {
         nameLabel.text = model.name
         loginNameLabel.text = model.userName
         descriptionLabel.text = model.description
+        removeLabelAnimations()
     }
     
     @objc private func logoutButtonPressed() {
@@ -115,7 +118,7 @@ final class ProfileViewController: UIViewController & ProfileViewControllerProto
 // MARK: - Layout
 
 extension ProfileViewController {
-       
+    
     private func setupConstraints() {
         
         view.backgroundColor = .ypBlack
@@ -142,14 +145,14 @@ extension ProfileViewController {
         horizStack.addArrangedSubview(avatarImageView)
         horizStack.addArrangedSubview(UIView())
         horizStack.addArrangedSubview(logoutButton)
-
+        
         vertStack.addArrangedSubview(horizStack)
         vertStack.addArrangedSubview(nameLabel)
         vertStack.addArrangedSubview(loginNameLabel)
         vertStack.addArrangedSubview(descriptionLabel)
-
+        
         let safeArea = view.safeAreaLayoutGuide
-
+        
         NSLayoutConstraint.activate([
             vertStack.topAnchor.constraint(
                 equalTo: safeArea.topAnchor, constant: 32),
@@ -161,21 +164,38 @@ extension ProfileViewController {
                 equalTo: vertStack.widthAnchor)
         ])
     }
+    
+    func addGradientViews() {
+        profileImageGradientView = GradientView(frame: CGRect(x: 0, y: 0, width: 70, height: 70), cornerRadius: 35)
+        let nameLabelGradientView = GradientView(frame: CGRect(x: 0, y: 0, width: 200, height: 28), cornerRadius: 14)
+        let userNameLabelGradientView = GradientView(frame: CGRect(x: 0, y: 0, width: 100, height: 18), cornerRadius: 9)
+        let descriptionLabelGradientView = GradientView(frame: CGRect(x: 0, y: 0, width: 100, height: 18), cornerRadius: 9)
+        
+        avatarImageView.addSubview(profileImageGradientView)
+        nameLabel.addSubview(nameLabelGradientView)
+        loginNameLabel.addSubview(userNameLabelGradientView)
+        descriptionLabel.addSubview(descriptionLabelGradientView)
+        
+        labelsGradientViews.insert(nameLabelGradientView)
+        labelsGradientViews.insert(userNameLabelGradientView)
+        labelsGradientViews.insert(descriptionLabelGradientView)
+        
+        [profileImageGradientView, nameLabelGradientView, userNameLabelGradientView, descriptionLabelGradientView].forEach { view in
+            view?.animateGradientLayerLocations()
+        }
+    }
+    
+    func removeLabelAnimations() {
+        labelsGradientViews.forEach { view in
+            view.removeAllAnimations()
+            view.removeFromSuperview()
+        }
+    }
 }
 
 // MARK: - Styling
 extension ProfileViewController {
     private func setupView() {
         view.backgroundColor = UIColor.ypBlack
-    }
-}
-
-// MARK: - Data Loading
-extension ProfileViewController {
-    private func loadData() {
-        avatarImageView.image = UIImage(named: "avatar")
-        nameLabel.text = "Екатерина Новикова"
-        loginNameLabel.text = "@ekaterina_nov"
-        descriptionLabel.text = "Hello, world!"
     }
 }

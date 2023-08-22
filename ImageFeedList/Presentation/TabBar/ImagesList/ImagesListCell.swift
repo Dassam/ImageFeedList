@@ -85,7 +85,7 @@ final class ImagesListCell: UITableViewCell {
             assertionFailure("index path is nil")
             return
         }
-        delegate?.imagesListCellDidTapLike(at: indexPath)
+        delegate?.likeButtonDidTapped(at: indexPath)
     }
     
     private func setupViews() {
