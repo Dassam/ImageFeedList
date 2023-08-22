@@ -23,11 +23,16 @@ final class ImageFeedListUITests: XCTestCase {
         XCTAssertTrue(webView.waitForExistence(timeout: 5))
         
         let loginTextField = webView.descendants(matching: .textField).element
-        let passwordTextField = webView.descendants(matching: .secureTextField).element
+        
         
         loginTextField.tap()
         sleep(3)
-        loginTextField.typeText("Name")
+        loginTextField.typeText("Login")
+        loginTextField.swipeUp()
+        webView.swipeUp()
+        sleep(3)
+        
+        let passwordTextField = webView.descendants(matching: .secureTextField).element
         passwordTextField.tap()
         sleep(3)
         passwordTextField.typeText("Password")
@@ -48,9 +53,9 @@ final class ImageFeedListUITests: XCTestCase {
         sleep(3)
         
         let cellToLike = tablesQuery.children(matching: .cell).element(boundBy: 2)
-        cellToLike.buttons["like disable"].tap()
+        cellToLike.buttons["like button off"].tap()
         sleep(2)
-        cellToLike.buttons["like active"].tap()
+        cellToLike.buttons["like button on"].tap()
         sleep(2)
         cellToLike.tap()
         
@@ -72,8 +77,8 @@ final class ImageFeedListUITests: XCTestCase {
         button.tap()
         XCTAssertTrue(button.waitForExistence(timeout: 5))
         
-        XCTAssertTrue(app.staticTexts["Your name"].exists)
-        XCTAssertTrue(app.staticTexts["@nickname"].exists)
+        XCTAssertTrue(app.staticTexts["Jaan Prokofjev"].exists)
+        XCTAssertTrue(app.staticTexts["@yaansaanich"].exists)
         
         app.buttons["Logout"].tap()
         sleep(2)
