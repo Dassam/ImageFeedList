@@ -8,23 +8,12 @@
 import UIKit
 
 final class ProfileImageService {
-    
-    private struct UserResult: Decodable {
-        let profileImage: ProfileImage
-    }
-    
-    private struct ProfileImage: Decodable {
-        let small: String
-        let medium: String
-        let large: String
-    }
-    
     private var task: URLSessionTask?
     private(set) var avatarURL: String?
     private let urlSession = URLSession.shared
     private var tokenStorage = OAuth2TokenStorage.shared
         
-    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
+    static let didChangeNotification = Notification.Name("ProfileImageProviderDidChange")
     static let shared = ProfileImageService()
     private init() {}
     
@@ -40,7 +29,7 @@ final class ProfileImageService {
         }
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
-        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
+        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileImageResult, Error>) in
             guard let self = self else { return }
             self.task = nil
             

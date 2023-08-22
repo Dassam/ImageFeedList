@@ -20,25 +20,26 @@ final class SplashViewController: UIViewController {
         return imageView
     }()
     
-    private let oauth2Service = OAuth2Service.shared
+    private let networkService = OAuth2Service.shared
     private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
     private var tokenStorage = OAuth2TokenStorage.shared
+    private let imagesListService = ImagesListService.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .ypBlack
-        configureComponents()
+        setupViews()
+        setupConstraints()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setNeedsStatusBarAppearanceUpdate()
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
         if let token = tokenStorage.self.token {
             fetchProfile(with: token)
         } else {
@@ -52,90 +53,59 @@ final class SplashViewController: UIViewController {
         authVC.modalPresentationStyle = .fullScreen
         present(authVC, animated: true)
     }
-
+    
     private func switchToTabBarController() {
         let tabBarController = TabBarController()
         tabBarController.tabBar.isTranslucent = false
         tabBarController.tabBar.barTintColor = .ypBlack
         tabBarController.tabBar.tintColor = .ypWhite
         
-        let window = UIApplication.shared.windows.first!
-        window.rootViewController = tabBarController
+        let window = UIApplication.shared.windows.first
+        window?.rootViewController = tabBarController
     }
 }
 
 // MARK: AuthViewController Case Transition
 
 extension SplashViewController: AuthViewControllerDelegate {
-    func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String) {
-        UIBlockingProgressHUD.show()
+    func onAuthSuccess(_ vc: AuthViewController, token: String) {
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
-            self.fetchOAuthToken(with: code)
+            tokenStorage.token = token
+            fetchProfile(with: token)
         }
     }
-  
-    private func fetchOAuthToken(with code: String) {
-            oauth2Service.fetchAuthToken(code: code) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let token):
-                    tokenStorage.token = token
-                    fetchProfile(with: token)
-                case .failure(let error):
-                    UIBlockingProgressHUD.dismiss()
-                    showAlert(with: error)
-                }
+    
+    private func fetchProfile(with token: String) {
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let profile):
+                profileImageService.fetchProfileImageURL(username: profile.username) { _ in }
+                UIBlockingProgressHUD.dismiss()
+                switchToTabBarController()
+            case .failure(let error):
+                UIBlockingProgressHUD.dismiss()
+                Alert.showAlert(with: error, view: self)
             }
         }
-        
-        private func fetchProfile(with token: String) {
-            profileService.fetchProfile(token) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let profile):
-                    ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { [weak self] _ in
-                        guard let self = self else { return }
-                        self.switchToTabBarController()
-                    }
-                    UIBlockingProgressHUD.dismiss()
-                case .failure(let error):
-                    UIBlockingProgressHUD.dismiss()
-                    showAlert(with: error)
-                }
-            }
-        }
+    }
 }
 
 // MARK: - Layout
 
 extension SplashViewController {
-    private func configureComponents() {
-        
+    
+    private func setupViews() {
+        view.backgroundColor = .ypBlack
         view.addSubview(imageView)
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-    }
-}
-
-// MARK: - Alerts
-
-extension SplashViewController {
-    private func showAlert(with error: Error) {
-        let alertController = UIAlertController(
-            title: "Что-то пошло не так",
-            message: "Не удалось войти в систему\n" + error.localizedDescription,
-            preferredStyle: .alert
-        )
-        
-        let action = UIAlertAction(title: "Ок", style: .cancel) { [weak self] _ in
-            guard let self = self else { return }
-            switchToAuthViewController()
-        }
-        
-        alertController.addAction(action)
-        present(alertController, animated: true)
     }
 }

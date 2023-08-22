@@ -21,11 +21,14 @@ final class OAuth2TokenStorage {
         get { keychainWrapper.string(forKey: .key(.tokenDefaultsKey)) }
         
         set {
-            if let newValue {
-                keychainWrapper.set(newValue, forKey: .key(.tokenDefaultsKey))
-            } else {
-                keychainWrapper.removeObject(forKey: .key(.tokenDefaultsKey))
+            guard let newValue = newValue else {
+                assertionFailure("token = nil")
+                return
             }
+            keychainWrapper.set(newValue, forKey: .key(.tokenDefaultsKey))
         }
+    }
+    func removeToken() {
+        keychainWrapper.removeObject(forKey: .key(.tokenDefaultsKey))
     }
 }
