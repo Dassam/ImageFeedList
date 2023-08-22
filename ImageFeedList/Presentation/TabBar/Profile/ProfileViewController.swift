@@ -7,11 +7,16 @@
 
 import UIKit
 import Kingfisher
-import WebKit
 
-final class ProfileViewController: UIViewController {
+protocol ProfileViewControllerProtocol: AnyObject {
+    var presenter: ProfileViewPresenterProtocol? { get set }
+    func showAlertController(_ alertController: UIAlertController)
+    func setAvatar(_ url: URL)
+}
+
+final class ProfileViewController: UIViewController & ProfileViewControllerProtocol {
     
-    private let profileService = ProfileService.shared
+    var presenter: ProfileViewPresenterProtocol?
     
     // MARK: View components
     
@@ -51,42 +56,28 @@ final class ProfileViewController: UIViewController {
         let button = UIButton.systemButton(
             with: UIImage(named: "logout_button")!,
             target: self,
-            action: #selector(logOutButtonPressed)
+            action: #selector(logoutButtonPressed)
         )
         button.tintColor = .ypRed
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    deinit {
-        removeObserver()
-    }
-    
     override func viewDidLoad() {
-        
-        view.backgroundColor = .ypBlack
-        setupView()
-        layoutComponents()
-        loadData()
-        addObserver()
-        updateProfileDetails()
         super.viewDidLoad()
+        
+        setupConstraints()
+        presenter?.addObserverForImageURL()
+        updateProfileDetails()
     }
     
-    private func updateProfileDetails() {
-        
-        guard let profile = profileService.profile else { return }
-        nameLabel.text = "\(profile.firstName) \(profile.lastName ?? "")"
-        loginNameLabel.text = "@\(profile.username)"
-        descriptionLabel.text = profile.bio
-        
-        if let imageURL = ProfileImageService.shared.avatarURL,
-           let url = URL(string: imageURL) {
-            setAvatar(url)
-        }
+    deinit { presenter?.removeObserverForImageURL() }
+    
+    func showAlertController(_ alertController: UIAlertController) {
+        present(alertController, animated: true)
     }
     
-    private func setAvatar(_ url: URL) {
+    func setAvatar(_ url: URL) {
         let cache = ImageCache.default
         cache.clearDiskCache()
         let processor = RoundCornerImageProcessor(cornerRadius: 36)
@@ -98,54 +89,27 @@ final class ProfileViewController: UIViewController {
         )
     }
     
-    @objc
-    private func updateAvatar(notification: Notification) {
-        guard
-            isViewLoaded,
-            let userInfo = notification.userInfo,
-            let profileImageURL = userInfo["URL"] as? String,
-            let url = URL(string: profileImageURL)
-        else { return }
-        
-        setAvatar(url)
+    private func updateProfileDetails() {
+        if let model = presenter?.convertResultToViewModel() {
+            nameLabel.text = model.name
+            loginNameLabel.text = model.userName
+            descriptionLabel.text = model.description
+        }
+        presenter?.checkImageURL()
     }
     
-    @objc private func logOutButtonPressed() {
-        let alertController = UIAlertController(title: "Пока, пока!", message: "Уверены, что хотите выйти?", preferredStyle: .alert)
-        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.cleanAndSwitchToSplashVC()
-        }
-        let noAction = UIAlertAction(title: "Нет", style: .default) { _ in
-            alertController.dismiss(animated: true)
-        }
-        alertController.addAction(yesAction)
-        alertController.addAction(noAction)
-        self.present(alertController, animated: true)
-    }
-    
-    private func cleanAndSwitchToSplashVC() {
-        cleanCookies()
-        OAuth2TokenStorage.shared.removeToken()
-        let window = UIApplication.shared.windows.first
-        let splashVC = SplashViewController()
-        window?.rootViewController = splashVC
-    }
-    
-    private func cleanCookies() {
-        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
-            records.forEach { record in
-                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
-            }
-        }
+    @objc private func logoutButtonPressed() {
+        presenter?.didTapLogoutButton()
     }
 }
 
 // MARK: - Layout
 
 extension ProfileViewController {
-    private func layoutComponents() {
+       
+    private func setupConstraints() {
+        
+        view.backgroundColor = .ypBlack
         
         // MARK: - Profile Vertical Stack
         
@@ -204,25 +168,5 @@ extension ProfileViewController {
         nameLabel.text = "Екатерина Новикова"
         loginNameLabel.text = "@ekaterina_nov"
         descriptionLabel.text = "Hello, world!"
-    }
-}
-
-// MARK: - Observer
-extension ProfileViewController {
-    private func addObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(updateAvatar(notification:)),
-            name: ProfileImageService.didChangeNotification,
-            object: nil
-        )
-    }
-    
-    private func removeObserver() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: ProfileImageService.didChangeNotification,
-            object: nil
-        )
     }
 }

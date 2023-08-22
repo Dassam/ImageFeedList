@@ -52,11 +52,9 @@ final class SingleImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupScrollView()
-        
         view.backgroundColor = .ypBlack
+        setupScrollView()
         addSubviews()
-        setupConstraints()
         loadPhoto()
         setupConstraints()
     }
@@ -133,20 +131,18 @@ final class SingleImageViewController: UIViewController {
         let wScale = visibleRectSize.width / imageSize.width
         let scale = min(maxZoomScale, max(minZoomScale, max(hScale, wScale)))
         scrollView.setZoomScale(scale, animated: false)
-        scrollView.layoutIfNeeded() // заставляем пересчитать принудительно
+        scrollView.layoutIfNeeded()
         let newContentSize = scrollView.contentSize
         let x = (newContentSize.width - visibleRectSize.width) / 2
         let y = (newContentSize.height - visibleRectSize.height) / 2
         scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
     }
     
-    @objc
-    private func didTapBackButton() {
+    @objc private func didTapBackButton() {
         dismiss(animated: true)
     }
     
-    @objc
-    private func didTapShareButton() {
+    @objc private func didTapShareButton() {
         let activityVC = UIActivityViewController(
             activityItems: [imageView.image],
             applicationActivities: nil

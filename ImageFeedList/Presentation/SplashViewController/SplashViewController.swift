@@ -20,15 +20,17 @@ final class SplashViewController: UIViewController {
         return imageView
     }()
     
+    private let networkService = OAuth2Service.shared
     private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
     private var tokenStorage = OAuth2TokenStorage.shared
     private let imagesListService = ImagesListService.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .ypBlack
-        configureComponents()
+        setupViews()
+        setupConstraints()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -80,14 +82,10 @@ extension SplashViewController: AuthViewControllerDelegate {
             guard let self = self else { return }
             switch result {
             case .success(let profile):
-                ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { _ in }
+                profileImageService.fetchProfileImageURL(username: profile.username) { _ in }
                 UIBlockingProgressHUD.dismiss()
                 switchToTabBarController()
             case .failure(let error):
-                if let networkError = error as? [NetworkError] { }
-                else {
-                    // obj is not a string array
-                }
                 UIBlockingProgressHUD.dismiss()
                 Alert.showAlert(with: error, view: self)
             }
@@ -98,8 +96,13 @@ extension SplashViewController: AuthViewControllerDelegate {
 // MARK: - Layout
 
 extension SplashViewController {
-    private func configureComponents() {
+    
+    private func setupViews() {
+        view.backgroundColor = .ypBlack
         view.addSubview(imageView)
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)

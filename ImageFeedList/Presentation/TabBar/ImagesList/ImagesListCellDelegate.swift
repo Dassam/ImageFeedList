@@ -8,5 +8,5 @@
 import UIKit
 
 protocol ImagesListCellDelegate: AnyObject {
-    func imagesListCellDidTapLike(_ cell: ImagesListCell)
+    func imagesListCellDidTapLike(at indexPath: IndexPath)
 }
