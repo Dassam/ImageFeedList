@@ -26,7 +26,7 @@ final class ProfileViewController: UIViewController & ProfileViewControllerProto
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.clipsToBounds = true
+        //imageView.clipsToBounds = true
         return imageView
     }()
     

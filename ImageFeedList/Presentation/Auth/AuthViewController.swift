@@ -35,6 +35,7 @@ final class AuthViewController: UIViewController {
 
     weak var delegate: AuthViewControllerDelegate?
     private let oauth2Service = OAuth2Service.shared
+    private let tokenStorage =  OAuth2TokenStorage.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,6 +67,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
             guard let self = self else { return }
             switch result {
             case .success(let token):
+                tokenStorage.token = token
                 delegate?.onAuthSuccess(self, token: token)
             case .failure(let error):
                 UIBlockingProgressHUD.dismiss()
