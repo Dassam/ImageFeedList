@@ -14,6 +14,7 @@ protocol ImagesListViewControllerProtocol: AnyObject {
     func reloadRows(at indexPaths: [IndexPath])
     func showProgressHUD()
     func dismissProgressHUD()
+    func showErrorAlert(error: Error)
 }
 
 final class ImagesListViewController: UIViewController & ImagesListViewControllerProtocol {
@@ -30,9 +31,7 @@ final class ImagesListViewController: UIViewController & ImagesListViewControlle
         return tableView
     }()
     
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        .lightContent
-    }
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,6 +61,9 @@ final class ImagesListViewController: UIViewController & ImagesListViewControlle
      }
      )
      }*/
+    func showErrorAlert(error: Error){
+        Alert.showAlert(with: error, view: self)
+    }
     
     func showSingleImageVC(_ vc: SingleImageViewController) {
         present(vc, animated: true)

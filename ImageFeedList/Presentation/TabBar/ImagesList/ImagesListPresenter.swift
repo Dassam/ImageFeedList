@@ -25,14 +25,13 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     private let imagesListService: ImagesListServiceProtocol
     private var imagesListServiceObserver: NSObjectProtocol?
     
-    init(imagesListService: ImagesListServiceProtocol = ImagesListService.shared) {
+    init(imagesListService: ImagesListServiceProtocol) {
         self.imagesListService = imagesListService
     }
     
     func viewDidLoad() {
         addObserver()
         fetchPhotosNextPage()
-        if let view = view as? ImagesListViewController {}
     }
     
     func numberOfRowsInSection() -> Int { photos.count }
@@ -80,9 +79,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
                 view?.reloadRows(at: [indexPath])
             case .failure(let error):
                 print(error.localizedDescription)
-                if let view = view as? ImagesListViewController {
-                    Alert.showAlert(with: error, view: view)
-                }
+                view?.showErrorAlert(error: error)
             }
             view?.dismissProgressHUD()
         }
@@ -108,9 +105,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
                 print("Success downloading photos")
             case .failure(let error):
                 print(error.localizedDescription)
-                if let view = view as? ImagesListViewController {
-                    Alert.showAlert(with: error, view: view)
-                }
+                view?.showErrorAlert(error: error)
             }
         }
     }
