@@ -10,13 +10,13 @@ import UIKit
 final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         let imagesListViewController = ImagesListViewController()
-        let imagesListPresenter = ImagesListPresenter()
+        let imagesListPresenter = ImagesListPresenter( imagesListService: ImagesListService.shared )
         
         imagesListViewController.presenter = imagesListPresenter
         imagesListPresenter.view = imagesListViewController
         
         let profileViewController = ProfileViewController()
-        let profilePresenter = ProfileViewPresenter(profileService: ProfileService.shared)
+        let profilePresenter = ProfileViewPresenter()
        
         profileViewController.presenter = profilePresenter
         profilePresenter.view = profileViewController

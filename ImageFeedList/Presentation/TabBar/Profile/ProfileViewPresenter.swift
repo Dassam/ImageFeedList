@@ -10,64 +10,26 @@ import WebKit
 
 protocol ProfileViewPresenterProtocol {
     var view: ProfileViewControllerProtocol? { get set }
-    func addObserverForImageURL()
-    func removeObserverForImageURL()
-    func cleanAndSwitchToSplashVC()
+    func viewDidLoad()
+    func viewWillAppear()
+    func viewWillDisappear()
     func didTapLogoutButton()
-    func convertResultToViewModel() -> ProfileViewModel?
-    func checkImageURL()
 }
 
 final class ProfileViewPresenter: ProfileViewPresenterProtocol {
     weak var view: ProfileViewControllerProtocol?
     private let profileService: ProfileServiceProtocol
-    private let profileImageService = ProfileImageService.shared
+    private let profileImageService: ProfileImageServiceProtocol
     
-    init(profileService: ProfileServiceProtocol) {
+    init(profileService: ProfileServiceProtocol = ProfileService.shared,
+         profileImageService: ProfileImageServiceProtocol = ProfileImageService.shared) {
         self.profileService = profileService
+        self.profileImageService = profileImageService
     }
     
-    func addObserverForImageURL() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(updateAvatar(notification:)),
-            name: ProfileImageService.didChangeNotification,
-            object: nil
-        )
-    }
-    
-    func removeObserverForImageURL() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: ProfileImageService.didChangeNotification,
-            object: nil
-        )
-    }
-    
-    func convertResultToViewModel() -> ProfileViewModel? {
-        guard let profile = profileService.profile else { return nil }
-        let viewModel = ProfileViewModel(
-            name: "\(profile.firstName) \(profile.lastName ?? "")",
-            userName: "@\(profile.username)",
-            description: profile.bio ?? ""
-        )
-        return viewModel
-    }
-    
-    func checkImageURL() {
-        if let imageURL = profileImageService.avatarURL,
-           let url = URL(string: imageURL) {
-            view?.setAvatar(url)
-        }
-    }
-    
-    func cleanAndSwitchToSplashVC() {
-        cleanCookies()
-        OAuth2TokenStorage.shared.removeToken()
-        let window = UIApplication.shared.windows.first
-        let splashVC = SplashViewController()
-        window?.rootViewController = splashVC
-    }
+    func viewDidLoad() { fetchProfile()}
+    func viewWillAppear() { addObserverForImageURL() }
+    func viewWillDisappear() { removeObserverForImageURL() }
     
     func didTapLogoutButton() {
         let alertController = UIAlertController(title: "Пока, пока!", message: "Уверены, что хотите выйти?", preferredStyle: .alert)
@@ -75,11 +37,13 @@ final class ProfileViewPresenter: ProfileViewPresenterProtocol {
             guard let self = self else { return }
             self.cleanAndSwitchToSplashVC()
         }
+        yesAction.accessibilityIdentifier = "Ok"
         let noAction = UIAlertAction(title: "Нет", style: .default) { _ in
             alertController.dismiss(animated: true)
         }
         alertController.addAction(yesAction)
         alertController.addAction(noAction)
+        alertController.view.accessibilityIdentifier = "Alert"
         view?.showAlertController(alertController)
     }
     
@@ -90,6 +54,54 @@ final class ProfileViewPresenter: ProfileViewPresenterProtocol {
             let url = URL(string: profileImageURL)
         else { return }
         view?.setAvatar(url)
+    }
+    
+    private func fetchProfile() {
+        profileService.fetchProfile() { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let profile):
+                convertResultToViewModel()
+                profileImageService.fetchProfileImageURL(username: profile.username) { _ in }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func addObserverForImageURL() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateAvatar(notification:)),
+            name: ProfileImageService.didChangeNotification,
+            object: nil
+        )
+    }
+    
+    private func removeObserverForImageURL() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: ProfileImageService.didChangeNotification,
+            object: nil
+        )
+    }
+    
+    private func convertResultToViewModel() {
+        guard let profile = profileService.profile else { return }
+        let viewModel = ProfileViewModel(
+            name: "\(profile.firstName) \(profile.lastName ?? "")",
+            userName: "@\(profile.username)",
+            description: profile.bio ?? ""
+        )
+        view?.updateProfileDetails(with: viewModel)
+    }
+    
+    func cleanAndSwitchToSplashVC() {
+        cleanCookies()
+        OAuth2TokenStorage.shared.removeToken()
+        let window = UIApplication.shared.windows.first
+        let splashVC = SplashViewController()
+        window?.rootViewController = splashVC
     }
     
     private func cleanCookies() {

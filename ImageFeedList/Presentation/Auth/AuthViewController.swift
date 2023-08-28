@@ -27,6 +27,7 @@ final class AuthViewController: UIViewController {
         button.setTitleColor(.ypBlack, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
         button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "Authenticate"
         return button
     }()
     
@@ -34,6 +35,7 @@ final class AuthViewController: UIViewController {
 
     weak var delegate: AuthViewControllerDelegate?
     private let oauth2Service = OAuth2Service.shared
+    private let tokenStorage =  OAuth2TokenStorage.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,6 +67,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
             guard let self = self else { return }
             switch result {
             case .success(let token):
+                tokenStorage.token = token
                 delegate?.onAuthSuccess(self, token: token)
             case .failure(let error):
                 UIBlockingProgressHUD.dismiss()

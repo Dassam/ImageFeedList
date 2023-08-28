@@ -12,12 +12,12 @@ protocol WebViewPresenterProtocol {
     var view: WebViewViewControllerProtocol? { get set }
     func viewDidLoad()
     func code(from url: URL) -> String?
-    func observeWebViewProgress()
+    func observeProgressFor(_ webView: WKWebView)
 }
 
 final class WebViewPresenter: WebViewPresenterProtocol {
-    var authHelper: AuthHelperProtocol
     weak var view: WebViewViewControllerProtocol?
+    var authHelper: AuthHelperProtocol
     private var estimatedProgressObservation: NSKeyValueObservation?
     
     init(authHelper: AuthHelperProtocol) {
@@ -25,8 +25,11 @@ final class WebViewPresenter: WebViewPresenterProtocol {
     }
     
     func viewDidLoad() {
-        let request = authHelper.authRequest()
-        view?.load(request)
+        if let request = authHelper.authRequest() {
+            view?.load(request)
+        } else {
+            assertionFailure("Failed with making request")
+        }
     }
     
     func shouldHideProgress(for value: Float) -> Bool {
@@ -37,11 +40,10 @@ final class WebViewPresenter: WebViewPresenterProtocol {
         authHelper.code(from: url)
     }
     
-    func observeWebViewProgress() {
-        estimatedProgressObservation = view?.webView.observe(\.estimatedProgress) { [weak self] _, _ in
-            guard let self = self,
-                  let view = view else { return }
-            didUpdateProgressValue(view.webView.estimatedProgress)
+    func observeProgressFor(_ webView: WKWebView) {
+        estimatedProgressObservation = webView.observe(\.estimatedProgress) { [weak self] _, _ in
+            guard let self = self else { return }
+            didUpdateProgressValue(webView.estimatedProgress)
         }
     }
     

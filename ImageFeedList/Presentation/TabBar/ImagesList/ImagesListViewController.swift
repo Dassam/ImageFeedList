@@ -14,6 +14,7 @@ protocol ImagesListViewControllerProtocol: AnyObject {
     func reloadRows(at indexPaths: [IndexPath])
     func showProgressHUD()
     func dismissProgressHUD()
+    func showErrorAlert(error: Error)
 }
 
 final class ImagesListViewController: UIViewController & ImagesListViewControllerProtocol {
@@ -30,17 +31,14 @@ final class ImagesListViewController: UIViewController & ImagesListViewControlle
         return tableView
     }()
     
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        .lightContent
-    }
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         tableView.delegate = self
         tableView.dataSource = self
-        presenter?.addObserver()
-        presenter?.fetchPhotosNextPage()
+        presenter?.viewDidLoad()
         setupViews()
     }
     
@@ -63,6 +61,9 @@ final class ImagesListViewController: UIViewController & ImagesListViewControlle
      }
      )
      }*/
+    func showErrorAlert(error: Error){
+        Alert.showAlert(with: error, view: self)
+    }
     
     func showSingleImageVC(_ vc: SingleImageViewController) {
         present(vc, animated: true)
@@ -100,7 +101,7 @@ extension ImagesListViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: ImagesListCell.reuseIdentifier, for: indexPath)
         guard let imageListCell = cell as? ImagesListCell else { preconditionFailure("Casting error") }
         imageListCell.delegate = self
-        if let model = presenter?.createModel(at: indexPath) {
+        if let model = presenter?.modelForCell(at: indexPath) {
             imageListCell.configure(with: model, at: indexPath)
         }
         return imageListCell
@@ -113,21 +114,24 @@ extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         presenter?.heightForRow(at: indexPath, with: tableView.bounds.width) ?? 50
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        presenter?.didSelectRow(at: indexPath)
+        presenter?.rowDidSelect(at: indexPath)
     }
-
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        presenter?.willDisplayCell(at: indexPath)
+        if let visibleIndexPaths = tableView.indexPathsForVisibleRows,
+           visibleIndexPaths.contains(indexPath) {
+            presenter?.cellWillDisplay(at: indexPath)
+        }
     }
 }
 
 // MARK: - ImagesListCellDelegate
 
 extension ImagesListViewController: ImagesListCellDelegate {
-    func imagesListCellDidTapLike(at indexPath: IndexPath) {
+    func likeButtonDidTapped(at indexPath: IndexPath) {
         presenter?.likeDidTapped(at: indexPath)
     }
 }

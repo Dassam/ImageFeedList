@@ -8,7 +8,7 @@
 import XCTest
 @testable import ImageFeedList
 
-class URLRequestTests: XCTestCase {
+final class URLRequestTests: XCTestCase {
     func testMakingRequest() {
         // given
         let path = "/me"

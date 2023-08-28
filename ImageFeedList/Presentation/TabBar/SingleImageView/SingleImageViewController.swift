@@ -10,6 +10,8 @@ import Kingfisher
 
 final class SingleImageViewController: UIViewController {
     
+    var photo: Photo!
+    
     private var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -31,6 +33,7 @@ final class SingleImageViewController: UIViewController {
         button.setImage(UIImage(named: "nav_back_button_white"), for: .normal)
         button.setTitle("", for: .normal)
         button.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        button.accessibilityIdentifier = "BackButton"
         return button
     }()
     
@@ -43,18 +46,14 @@ final class SingleImageViewController: UIViewController {
         return button
     }()
     
-    var photo: Photo!
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        .lightContent
-    }
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .ypBlack
+        scrollView.delegate = self
         setupScrollView()
-        addSubviews()
+        setupViews()
         loadPhoto()
         setupConstraints()
     }
@@ -87,7 +86,8 @@ final class SingleImageViewController: UIViewController {
         self.present(alertController, animated: true)
     }
     
-    private func addSubviews() {
+    private func setupViews() {
+        view.backgroundColor = .ypBlack
         view.addSubview(scrollView)
         scrollView.addSubview(imageView)
         view.addSubview(backButton)
@@ -149,6 +149,19 @@ final class SingleImageViewController: UIViewController {
         )
         present(activityVC, animated: true)
     }
+    
+    private func recenterImage() {
+        let imageViewSize = imageView.frame.size
+        let scrollViewSize = scrollView.bounds.size
+        
+        let horizontalSpace = imageViewSize.width < scrollViewSize.width ?
+        (scrollViewSize.width - imageViewSize.width) / 2 : 0
+        
+        let verticalSpace = imageViewSize.height < scrollViewSize.height ?
+        (scrollViewSize.height - imageViewSize.height) / 2 : 0
+        
+        scrollView.contentInset = UIEdgeInsets(top: verticalSpace, left: horizontalSpace, bottom: verticalSpace, right: horizontalSpace)
+    }
 }
 
 // MARK: - UIScrollViewDelegate
@@ -156,5 +169,9 @@ final class SingleImageViewController: UIViewController {
 extension SingleImageViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         imageView
+    }
+    
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        recenterImage()
     }
 }

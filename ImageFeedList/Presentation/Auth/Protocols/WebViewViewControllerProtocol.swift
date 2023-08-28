@@ -9,7 +9,6 @@ import UIKit
 import WebKit
 
 protocol WebViewViewControllerProtocol: AnyObject {
-    var webView: WKWebView! { get }
     var presenter: WebViewPresenterProtocol? { get set }
     func load(_ request: URLRequest)
     func setProgressValue(_ newValue: Float)

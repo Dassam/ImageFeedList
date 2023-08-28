@@ -13,33 +13,37 @@ extension URLSession {
         for request: URLRequest,
         completion: @escaping (Result<DecodingType, Error>) -> Void
     ) -> URLSessionTask {
-        
-        let task = dataTask(with: request, completionHandler: { (data, response, error) in
-            DispatchQueue.main.async {
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                
-                if let response = response as? HTTPURLResponse {
-                    if !(200..<300 ~= response.statusCode) {
-                        completion(.failure(NetworkError.httpStatusCode(response.statusCode)))
-                        return
-                    }
-                }
-                
-                if let data = data {
+        let task = dataTask(with: request) { data, response, error in
+            if let data = data,
+               let response = response as? HTTPURLResponse {
+                let statusCode = response.statusCode
+                if 200..<300 ~= statusCode {
                     do {
                         let decoder = JSONDecoder()
                         decoder.keyDecodingStrategy = .convertFromSnakeCase
                         let result = try decoder.decode(DecodingType.self, from: data)
-                        completion(.success(result))
+                        
+                        DispatchQueue.main.async {
+                            completion(.success(result))
+                        }
                     } catch {
-                        completion(.failure(ParseError.decodeError(error)))
+                        DispatchQueue.main.async {
+                            completion(.failure(NetworkError.decodeError(error)))
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(.failure(NetworkError.httpStatusCode(response.statusCode)))
                     }
                 }
+            } else if let error = error {
+                DispatchQueue.main.async {
+                    completion(.failure(NetworkError.urlSessionError(error)))
+                }
+            } else {
+                assertionFailure("Unknown error")
             }
-        })
+        }
         return task
     }
 }
